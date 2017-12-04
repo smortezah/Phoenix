@@ -1,3 +1,7 @@
+<p align="center"><img src="imgs/logo.png"
+alt="Phoenix" width="264" border="0" /></p>
+<br>
+
 ## INSTALLATION
 **Cmake** is required for the installation. Also, **git** is recommended for cloning the repository.
 ```bash
