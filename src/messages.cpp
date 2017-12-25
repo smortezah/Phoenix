@@ -13,28 +13,29 @@ using std::cout;
 void Messages::help () const
 {
     cout                                                                << '\n'
-        << "Synopsis:"                                                  << '\n'
-        << "    ./phoenix [OPTION]... -m [MODEL(S)] -r [REFERENCE(S)] "
-                                                   "-t [TARGET(S)]"     << '\n'
+        << "SYNOPSIS"                                                   << '\n'
+        << "      ./phoenix [OPTION]... -m [MODELS] "
+                                       "-r [REFERENCES] -t [TARGETS]"   << '\n'
                                                                         << '\n'
-        << "         EXAMPLE: ./phoenix -n 4 -d -m 0,11,100:1,9,10 "
-                                 "-r HS21,HSY -t PT19,PT21,PT22,PTY"    << '\n'
+        << "SAMPLE"                                                     << '\n'
+        << "      ./phoenix -n 4 -d -m 0,11,100:1,9,10 "
+                                   "-r HS21,HSY -t PT19,PT21,PT22,PTY"  << '\n'
                                                                         << '\n'
-        << "Mandatory arguments:"                                       << '\n'
-        << "    -m [<i_1>,<k_1>,<a_1>:<i_2>,<k_2>,<a_2>:...],   "
-                            "--model [<i_1>,<k_1>,<a_1>:...]"           << '\n'
-        << "         context model(s) (at least one)."                  << '\n'
-        << "         <i>:  inverted repeat "
-                                      "(0=don't consider, 1=consider)." << '\n'
-        << "         <k>:  context-order size,"                         << '\n'
-        << "         <a>:  1/alpha,"                                    << '\n'
-        << "         EXAMPLE: -m 0,11,100:1,9,10"                       << '\n'
+        << "DESCRIPTION"                                                << '\n'
+        << " "                                                          << '\n'
+        << "      -m [<i1>,<k1>,<a1>:<i2>,<k2>,<a2>:...],   "
+                            "--model [<i1>,<k1>,<a1>:...]"           << '\n'
+        << "          context models (at least one) -- MANDATORY"        << '\n'
+        << "          <i>:  inverted repeat (1=apply, 0=do not apply)"   << '\n'
+        << "          <k>:  context-order size"                          << '\n'
+        << "          <a>:  1/alpha"                                     << '\n'
+        << "          EXAMPLE: -m 0,11,100:1,9,10"                       << '\n'
                                                                         << '\n'
-        << "    -r [REFERENCE(S)],   --reference [REFERENCE(S)]"        << '\n'
+        << "      -r [REFERENCE(S)],   --reference [REFERENCE(S)]"      << '\n'
         << "         reference file(s) address(es)"                     << '\n'
         << "         EXAMPLE: -r ref1,ref2"                             << '\n'
                                                                         << '\n'
-        << "    -t [TARGET(S)],   --target [TARGET(S)]"                 << '\n'
+        << "      -t [TARGET(S)],   --target [TARGET(S)]"                 << '\n'
         << "         target file(s) address(es)"                        << '\n'
         << "         EXAMPLE: -t tar1,tar2,tar3"                        << '\n'
                                                                         << '\n'
