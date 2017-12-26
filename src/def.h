@@ -8,10 +8,12 @@ using std::unordered_map;
 using std::array;
 
 /*******************************************************************************
-    About PHOENIX
+    Phoenix version
 *******************************************************************************/
-#define VERSION_PHOENIX 1
-#define RELEASE_PHOENIX 0
+const string MONTH     = "01";
+const string YEAR      = "18";
+const string VERSION   = YEAR + "." + MONTH;
+const string DEV_YEARS = "2016-2018";
 
 
 /*******************************************************************************
