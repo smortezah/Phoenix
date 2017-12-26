@@ -27,14 +27,42 @@ To see the possible options, type:
 which provides the following:
 ```
 SYNOPSIS
-
+      ./phoenix [OPTION]... -m [MODELS] -r [REFERENCES] -t [TARGETS]
 
 SAMPLE
+      ./phoenix -n 4 -d -m 0,11,100:1,9,10 -r HS21,HSY -t PT19,PT21,PTY
 
+OPTIONS
+      -h,  --help
+           usage guide
 
-DESCRIPTION
+      -m [<i1>,<k1>,<a1>:<i2>,<k2>,<a2>:...],  --model [<i1>,<k1>,<a1>:...]
+           context models -- MANDATORY (at least one)
+           <i>:  inverted repeat (1=apply, 0=do not apply)
+           <k>:  context-order size
+           <a>:  1/alpha
+           EXAMPLE: -m 0,11,100:1,9,10
 
+      -r [REFERENCES],  --reference [REFERENCES]
+           reference files -- MANDATORY (at least one)
+           EXAMPLE: -r ref1,ref2
 
+      -t [TARGETS],  --target [TARGETS]
+           target files -- MANDATORY (at least one)
+           EXAMPLE: -t tar1,tar2,tar3
+
+      -d,  --decompress
+           decompress
+
+      -n [INTEGER],  --nthreads [INTEGER]
+           number of threads (default: 2)
+
+      -g [FLOAT],  --gamma [FLOAT]
+           gamma (default: 0.95).
+           requires a float number (0 <= g < 1)
+
+      -v,  --verbose
+           verbose mode (more information)
 ```
 
 

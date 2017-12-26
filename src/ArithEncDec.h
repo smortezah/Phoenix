@@ -212,12 +212,12 @@ class ArithEncDec
 public:
     ArithEncDec ();                                      /// constructor
 
-    void GetInterval         (int*, int*, int*, U8);
-    U8   GetSymbol           (int*, int*, int*, int, U8);
-    void WriteNBits          (U64,  int,  FILE*);    /// write N bits to a file
-    int  ReadNBits           (U32,  FILE*);          /// read N bits from a file
-    void AESym               (U8,   int*, int,  FILE*);  /// arithmetic encoding
-    U8   ADSym               (U8,   int*, int,  FILE*);  /// arithmetic decoding
+    void GetInterval         (int*, int*, int*, u8);
+    u8   GetSymbol           (int*, int*, int*, int, u8);
+    void WriteNBits          (u64,  int,  FILE*);    /// write N bits to a file
+    int  ReadNBits           (u32,  FILE*);          /// read N bits from a file
+    void AESym               (u8,   int*, int,  FILE*);  /// arithmetic encoding
+    u8   ADSym               (u8,   int*, int,  FILE*);  /// arithmetic decoding
     void start_encode        (void);
     void finish_encode       (FILE*);
     void start_decode        (FILE*);
@@ -251,9 +251,9 @@ ArithEncDec::ArithEncDec () {}
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::GetInterval (int *low, int *high, int *count, U8 symbol)
+void ArithEncDec::GetInterval (int *low, int *high, int *count, u8 symbol)
 {
-	*low = 0;	for (U8 n = 0; n < symbol; n++) *low += count[ n ];
+	*low = 0;	for (u8 n = 0; n < symbol; n++) *low += count[ n ];
 	*high = *low + count[ symbol ];
 }
 
@@ -261,10 +261,10 @@ void ArithEncDec::GetInterval (int *low, int *high, int *count, U8 symbol)
 /*******************************************************************************
 
 *******************************************************************************/
-U8 ArithEncDec::GetSymbol (int *low, int *high, int *count,
-						   int target, U8 nSymbols)
+u8 ArithEncDec::GetSymbol (int *low, int *high, int *count,
+						   int target, u8 nSymbols)
 {
-	U8 n;
+	u8 n;
 
 	*low = 0;
 	for (n = 0; n < nSymbols; n++)
@@ -281,7 +281,7 @@ U8 ArithEncDec::GetSymbol (int *low, int *high, int *count,
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::WriteNBits (U64 bits, int nBits, FILE *oFp)
+void ArithEncDec::WriteNBits (u64 bits, int nBits, FILE *oFp)
 {
 	while (nBits--)
 	{
@@ -294,7 +294,7 @@ void ArithEncDec::WriteNBits (U64 bits, int nBits, FILE *oFp)
 /*******************************************************************************
 
 *******************************************************************************/
-int ArithEncDec::ReadNBits (U32 nBits, FILE *iFp)
+int ArithEncDec::ReadNBits (u32 nBits, FILE *iFp)
 {
 	int bits = 0;
 	int target, low, high, count[2] = {1, 1};
@@ -314,7 +314,7 @@ int ArithEncDec::ReadNBits (U32 nBits, FILE *iFp)
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::AESym (U8 symbol, int *counters, int totalCount, FILE *oFp)
+void ArithEncDec::AESym (u8 symbol, int *counters, int totalCount, FILE *oFp)
 {
 	int low, high;
 
@@ -326,11 +326,11 @@ void ArithEncDec::AESym (U8 symbol, int *counters, int totalCount, FILE *oFp)
 /*******************************************************************************
 
 *******************************************************************************/
-U8 ArithEncDec::ADSym (U8 nSymbols, int *counters, int totalCount, FILE *iFp)
+u8 ArithEncDec::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
 {
 	int low, high;
 
-	U8 symbol = GetSymbol(&low, &high, counters,
+	u8 symbol = GetSymbol(&low, &high, counters,
 						  arithmetic_decode_target(totalCount), nSymbols);
 	arithmetic_decode(low, high, totalCount, iFp);
 

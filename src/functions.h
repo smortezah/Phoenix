@@ -115,9 +115,9 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             case 'n':   // needs an integer argument
                 try
                 {
-                    U8 n_threads = (U8) stoi((string) optarg);
+                    u8 n_threads = (u8) stoi((string) optarg);
                     mixModel.setN_threads( (n_threads < 1)
-                                         ? (U8) DEFAULT_N_THREADS : n_threads );
+                                         ? (u8) DEFAULT_N_THREADS : n_threads );
                 }
                 catch (const invalid_argument &ia)
                 {
@@ -172,9 +172,9 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         mixModel.pushTarAddr( string(begIter, endIter) );     // last tar. name
         
         /*  slower
-        U8 tarIndex = (U8) tarFilesNames.size();
+        u8 tarIndex = (u8) tarFilesNames.size();
         // save all target files names except the last one
-        for (U8 i = tarIndex; i--;)
+        for (u8 i = tarIndex; i--;)
         {
             if (tarFilesNames[ i ] == ',')
             {
@@ -205,9 +205,9 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         mixModel.pushRefAddr(string(begIter, endIter));     // last ref. name
         
         /*  slower
-        U8 refIndex = (U8) refFilesNames.size();
+        u8 refIndex = (u8) refFilesNames.size();
         // save all reference files names except the last one
-        for (U8 i = refIndex; i--;)
+        for (u8 i = refIndex; i--;)
         {
             if (refFilesNames[ i ] == ',')
             {
@@ -240,10 +240,10 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         vecModelsParams.push_back( string(begIter, endIter) );
                                                                
         vector< string > modelParams;               // params for each model
-        U8 n_models = (U8) vecModelsParams.size();  // number of models
+        u8 n_models = (u8) vecModelsParams.size();  // number of models
         mixModel.setN_models(n_models);             // set number of models
                                                    
-        for (U8 n = n_models; n--;)
+        for (u8 n = n_models; n--;)
         {
             modelParams.clear();                    // reset vector modelParams
             
@@ -263,14 +263,14 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
                                                                
             // set model(s) parameters
             mixModel.pushParams((bool) stoi(modelParams[ 0 ]),  // IR
-                                (U8) stoi(modelParams[ 1 ]),    // ctx depth
-                                (U16) stoi(modelParams[ 2 ]));  // alpha denom.
+                                (u8) stoi(modelParams[ 1 ]),    // ctx depth
+                                (u16) stoi(modelParams[ 2 ]));  // alpha denom.
         }
         
         // set compression mode: 't'=table, 'h'=hash table
         // 5^k_1 + 5^k_2 + ... > 5^12 ==> mode: hash table
-        U64 cmpModeSum = 0;
-        for(U8 k : mixModel.getCtxDepth()) cmpModeSum = cmpModeSum + POWER5[k];
+        u64 cmpModeSum = 0;
+        for(u8 k : mixModel.getCtxDepth()) cmpModeSum = cmpModeSum + POWER5[k];
         const char compressionMode = (cmpModeSum > POWER5[TABLE_MAX_CTX])
                                      ? 'h' : 't';
         mixModel.setCompMode(compressionMode);

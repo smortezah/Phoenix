@@ -17,9 +17,29 @@ const string DEV_YEARS = "2016-2018";
 
 
 /*******************************************************************************
-    constants
+    Typedefs
 *******************************************************************************/
-#define ALPH_SIZE         5           // alphabet {A, C, N, G, T} size
+typedef unsigned char       u8;
+typedef unsigned short int  u16;
+typedef unsigned int        u32;
+typedef unsigned long int   u64;
+typedef signed char         i8;
+typedef short int           i16;
+typedef int                 i32;
+typedef long int            i64;
+
+// vaghti bishtar az 65,535 (uint16_t max) shod, hameye adad ha nesf mishan.
+// ye variable ro ham tanzim kon ke maloom she chand bar nesf kardim
+//typedef unordered_map< string, array< u64, ALPH_SIZE > > htable_str_t;
+//typedef unordered_map< u64 , array< u16, ALPH_SIZE > > htable_t;
+
+constexpr u8 ALPH_SIZE = 5;           // alphabet {A, C, N, G, T} size
+typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
+
+
+/*******************************************************************************
+    Constants
+*******************************************************************************/
 #define ALPH_SUM_SIZE     6           // ALPHABET_SIZE+1: 1 more col. for 'sum'
 #define LOG2_ALPH_SIZE    2.3219281   // log2 of 5 (ALPHABET_SIZE)
 #define TABLE_MAX_CTX     12          // max context depth for building table
@@ -47,28 +67,27 @@ const string DEV_YEARS = "2016-2018";
 
 
 /*******************************************************************************
-    typedefs
+    Metaprograms
 *******************************************************************************/
-typedef unsigned char       U8;
-typedef unsigned short int  U16;
-typedef unsigned int        U32;
-typedef unsigned long int   U64;
-typedef signed char         I8;
-typedef short int           I16;
-typedef int                 I32;
-typedef long int            I64;
+/**
+ * Power (B^E). Usage: "cerr << POWER<3,2>::val;" which yields 9
+ * @tparam  B  Base
+ * @tparam  E  Exponent
+ * @warning Base (B) and exponent (E) MUST be known at compile time.
+ */
+template<u32 B, u32 E>
+struct POWER { static const u64 val = B * POWER<B, E-1>::val; };
 
-// vaghti bishtar az 65,535 (uint16_t max) shod, hameye adad ha nesf mishan.
-// ye variable ro ham tanzim kon ke maloom she chand bar nesf kardim
-//typedef unordered_map< string, array< U64, ALPH_SIZE > > htable_str_t;
-//typedef unordered_map< U64 , array< U16, ALPH_SIZE > > htable_t;
-typedef unordered_map<U64, array<U64, ALPH_SIZE>> htable_t;
+/** @cond SHOW_HIDDEN */
+template<u32 B>
+struct POWER<B, 0> { static const u64 val = 1; };
+/** @endcond */
 
 
 /*******************************************************************************
-    lookup tables
+    Lookup tables
 *******************************************************************************/
-static const U64 POWER5[28] =    // 5^0 to 5^27, which needs less than 64 bits
+static const u64 POWER5[28] =    // 5^0 to 5^27, which needs less than 64 bits
     {
                            1,                  5,                  25,
                          125,                625,                3125,
