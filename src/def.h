@@ -67,21 +67,11 @@ typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 
 
 /*******************************************************************************
-    Metaprograms
+    Compile-time functions
 *******************************************************************************/
-/**
- * Power (B^E). Usage: "cerr << POWER<3,2>::val;" which yields 9
- * @tparam  B  Base
- * @tparam  E  Exponent
- * @warning Base (B) and exponent (E) MUST be known at compile time.
- */
-template<u32 B, u32 E>
-struct POWER { static const u64 val = B * POWER<B, E-1>::val; };
-
-/** @cond SHOW_HIDDEN */
-template<u32 B>
-struct POWER<B, 0> { static const u64 val = 1; };
-/** @endcond */
+// power: Base^Exponent
+template <typename T>
+constexpr T cPower(T b, u64 e) { return (e==0) ? 1 : b*cPower(b, e-1); }
 
 
 /*******************************************************************************
