@@ -7,11 +7,10 @@
 class Messages
 {
 public:
-    Messages () = default;                                 // constructor
+    Messages () = default;                                 // Constructor
     
-    void help    () const;                                 // show usage guide
-    void about   () const;                                 // show About Phoenix
-    void verbose () const;                                 // show verbose mode
+    void help    () const;                                 // Usage guide
+    void verbose () const;                                 // Verbose mode
 };
 
 #endif //PHOENIX_MESSAGES_H

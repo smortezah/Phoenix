@@ -37,19 +37,19 @@ int main (int argc, char *argv[])
     high_resolution_clock::time_point exeStartTime =
             high_resolution_clock::now();   // Record start time
 
-    FCM mixModel;       // object on memory stack
+    FCM mixModel;       // Object on memory stack
     mixModel.setStartTime(exeStartTime);
 
-    // parse the command line
+    // Parse the command line
     commandLineParser(argc, argv, mixModel);
 
-//    thread *arrThread;  // array of threads
+//    thread *arrThread;
 //
-//    // build reference(s) model(s) -- multithreaded
+//    // Build reference(s) model(s) -- multithreaded
 //    u16 n_models   = mixModel.getN_models();
 //    u16 n_threads  = mixModel.getN_threads();
 //    u16 arrThrSize = (n_models > n_threads)
-//                     ? n_threads : n_models;  // size of threads array
+//                     ? n_threads : n_models;  // Size of threads array
 //    arrThread = new thread[arrThrSize];
 //    for (u16 i = 0; i < n_models; i += arrThrSize)
 //    {
@@ -79,11 +79,11 @@ int main (int argc, char *argv[])
 //    thread *arrThread = new thread[arrThrSize];       // array of threads
 //    */
 //
-//    // compress target(s) using reference(s) model(s) -- multithreaded
-//    u16 n_targets = (u16) mixModel.getTarAddr().size();  // up to 2^16=65536 targets
-//    // modify threads array size
+//    // Compress target(s) using reference(s) model(s) -- multithreaded
+//    u16 n_targets = (u16) mixModel.getTarAddr().size();  // Up to 2^16=65536 targets
+//    // Modify threads array size
 //    arrThrSize = (n_targets > n_threads) ? n_threads : n_targets;
-//    arrThread = new thread[arrThrSize];                // resize threads array
+//    arrThread = new thread[arrThrSize];                // Resize threads array
 //    for (u16 i = 0; i < n_targets; i += arrThrSize)
 //    {
 //        for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
@@ -95,22 +95,22 @@ int main (int argc, char *argv[])
 //    }
 //    delete[] arrThread;
 //
-//    // decompress
+////    // Decompress
 ////    if (mixModel.getDecompFlag())
 ////    {
 ////        FCM decModel;
-////        // reference(s) and target(s) address(es)
+////        // Reference(s) and target(s) address(es)
 ////        for (string s : mixModel.getRefAddr())  decModel.pushRefAddr(s);
 ////        for (string s : mixModel.getTarAddr())  decModel.pushTarAddr(s);
 ////
-////        // extract header information
+////        // Extract header information
 ////        decModel.extractHeader(decModel.getTarAddr()[ 0 ]);
 ////
-////        // build reference(s) model(s) -- multithreaded
+////        // Build reference(s) model(s) -- multithreaded
 ////        n_models   = mixModel.getN_models();
-////        n_threads  = mixModel.getN_threads();      // set based on command line
+////        n_threads  = mixModel.getN_threads();      // Set based on command line
 ////        arrThrSize = (n_models > n_threads)
-////                     ? n_threads : n_models;       // size of threads array
+////                     ? n_threads : n_models;       // Size of threads array
 ////        arrThread = new thread[arrThrSize];
 ////        for (u16 i = 0; i < n_models; i += arrThrSize)
 ////        {
@@ -125,10 +125,10 @@ int main (int argc, char *argv[])
 ////        }
 ////        delete[] arrThread;
 ////
-////        // decompress target(s) using reference(s) model(s) -- multithreaded
-////        // modify thread array size
+////        // Decompress target(s) using reference(s) model(s) -- multithreaded
+////        // Modify thread array size
 ////        arrThrSize = (n_targets > n_threads) ? n_threads : n_targets;
-////        arrThread = new thread[arrThrSize];     // threads array
+////        arrThread = new thread[arrThrSize];
 ////        for (u16 i = 0; i < n_targets; i += arrThrSize)
 ////        {
 ////            for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
@@ -140,7 +140,7 @@ int main (int argc, char *argv[])
 ////        }
 ////        delete[] arrThread;
 ////
-////        // check equality of decompressed & tar. files (check lossless comp.)
+////        // Check equality of decompressed & tar. files (check lossless comp.)
 ////        for (string s : decModel.getTarAddr())
 ////            if (!areFilesEqual(s, s + DECOMP_FILETYPE))
 ////            {
@@ -159,15 +159,15 @@ int main (int argc, char *argv[])
 ////        cout << "Lossless compression and decompression of '";
 ////        for (int i = 0; i < tarsNo-1; ++i) cout << tarNamesPure[ i ] << "', '";
 ////        cout << tarNamesPure[ tarsNo - 1 ] << "' was successful.\n";
-////    }   // end decompress
-//
-//
+////    }   // end Decompress
+////
+////
 ////    high_resolution_clock::time_point exeFinishTime =
 ////            high_resolution_clock::now();   // Record end time
-////    // calculate and show duration in seconds
+////    // Calculate and show duration in seconds
 ////    std::chrono::duration< double > elapsed = exeFinishTime - exeStartTime;
 ////
-////    cout  // elapsed time depends on slowest thread
+////    cout  // Elapsed time depends on slowest thread
 ////            << "Elapsed time: "
 ////            << '\t'
 ////            << std::fixed << setprecision(3) << elapsed.count() << '\n';

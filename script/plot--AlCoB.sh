@@ -157,7 +157,7 @@ set xtics( \
 "Shigella phage SHBML-50-1"             14, \
 "Shigella phage SHFML-11"               15, \
 "Shigella phage SHFML-26"               16, \
-"treptococcus phage phiARI0004"         17, \
+"Streptococcus phage phiARI0004"        17, \
 "Streptococcus phage phiARI0031"        18, \
 "Streptococcus phage phiARI0131-1"      19, \
 "Streptococcus phage phiARI0131-2"      20, \
@@ -170,7 +170,7 @@ set xtics( \
 
 
 set ytics( \
-"Streptococcus pneumoniae AP200"        0,  \
+"Streptococcus pneumoniae bacteriophage MM1"        0,  \
 "Shigella phage SHFML-26"               1,  \
 "Shigella phage SHFML-11"               2,  \
 "Shigella phage SHBML-50-1"             3,  \
@@ -231,7 +231,7 @@ yticsOffset=0
 #xlabelOffset=18.5	# F-F
 xlabelOffset=6		# V-V
 #ylabelOffset=31	# F-F
-ylabelOffset=8		# V-V
+ylabelOffset=18.5		# V-V
 
 #set size ratio .9  #0.85
 
@@ -245,7 +245,8 @@ set tmargin 0.5    ### without title
 #set bmargin 23.25	# F-F
 set bmargin 14		# V-V
 #set lmargin 42		# F-F
-set lmargin 27		# V-V
+#set lmargin 27		# V-V
+set lmargin 27.5		# V-V
 set rmargin 2
 
 #-------------------------------------------------------------------------------
@@ -362,7 +363,7 @@ set xtics( \
 "Shigella phage SHBML-50-1"             14, \
 "Shigella phage SHFML-11"               15, \
 "Shigella phage SHFML-26"               16, \
-"treptococcus phage phiARI0004"         17, \
+"Streptococcus phage phiARI0004"        17, \
 "Streptococcus phage phiARI0031"        18, \
 "Streptococcus phage phiARI0131-1"      19, \
 "Streptococcus phage phiARI0131-2"      20, \
@@ -375,7 +376,7 @@ set xtics( \
 
 
 set ytics( \
-"Streptococcus pneumoniae AP200"        0,  \
+"Streptococcus pneumoniae bacteriophage MM1"        0,  \
 "Shigella phage SHFML-26"               1,  \
 "Shigella phage SHFML-11"               2,  \
 "Shigella phage SHBML-50-1"             3,  \
@@ -383,7 +384,7 @@ set ytics( \
 "Salmonella phage 118970\\\_sal1"       5,  \
 "Pseudomonas phage vB\\\_PaeM\\\_MAG1"  6,  \
 "Pseudomonas phage phiMK"               7,  \
-"Pseudomonas phage PAK_P4"              8,  \
+"Pseudomonas phage PAK\\\_P4"           8,  \
 "Pseudomonas phage K5"                  9,  \
 "Klebsiella phage vB\\\_KpnM\\\_KpV477" 10, \
 "Klebsiella phage vB\\\_KpnM\\\_KpV477" 11, \

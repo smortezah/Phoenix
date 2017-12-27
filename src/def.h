@@ -1,7 +1,7 @@
 #ifndef PHOENIX_DEF_H
 #define PHOENIX_DEF_H
 
-#include <unordered_map>    // hash table
+#include <unordered_map>    // Hash table
 
 using std::string;
 using std::unordered_map;
@@ -33,7 +33,7 @@ typedef long int            i64;
 //typedef unordered_map< string, array< u64, ALPH_SIZE > > htable_str_t;
 //typedef unordered_map< u64 , array< u16, ALPH_SIZE > > htable_t;
 
-constexpr u8 ALPH_SIZE = 5;           // alphabet {A, C, N, G, T} size
+constexpr u8 ALPH_SIZE = 5;           // Alphabet {A, C, N, G, T} size
 typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 
 
@@ -42,26 +42,26 @@ typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 *******************************************************************************/
 #define ALPH_SUM_SIZE     6           // ALPHABET_SIZE+1: 1 more col. for 'sum'
 #define LOG2_ALPH_SIZE    2.3219281   // log2 of 5 (ALPHABET_SIZE)
-#define TABLE_MAX_CTX     12          // max context depth for building table
-//#define TABLE_MAX_CTX     0          // max context depth for building table
-#define IR_MAGIC_NUM      4           // for IR calculation
+#define TABLE_MAX_CTX     12          // Max context depth for building table
+//#define TABLE_MAX_CTX     0          // Max context depth for building table
+#define IR_MAGIC_NUM      4           // For IR calculation
 
-#define DEFAULT_N_THREADS 2           // default number of threads
+#define DEFAULT_N_THREADS 2           // Default number of threads
 #define N_FREE_THREADS    1
-#define DEFAULT_GAMMA     0.95        // default gamma (mixture of FCMs)
+#define DEFAULT_GAMMA     0.95        // Default gamma (mixture of FCMs)
 
-#define COMP_FILETYPE     ".co"       // compressed file type
-#define DECOMP_FILETYPE   ".de"       // decompressed file type
-#define WATERMARK         20170324    // used in compression/decompression
-#define BUFFER_SIZE       262144      // used in decompression
+#define COMP_FILETYPE     ".co"       // Compressed file type
+#define DECOMP_FILETYPE   ".de"       // Decompressed file type
+#define WATERMARK         20170324    // Used in compression/decompression
+#define BUFFER_SIZE       262144      // Used in decompression
 
-#define DOUBLE_TO_INT     65535       // for converting double to integer
-//#define MAX_INT           2147483647 // maximum possible integer = 2^31-1
-#define MAX_INT           1073741823  // maximum possible integer = 2^30-1
-// max no. of bases allowed for sum col. of table = (MAX_INT-1)/65535 = 2^15
+#define DOUBLE_TO_INT     65535       // For converting double to integer
+//#define MAX_INT           2147483647 // Maximum possible integer = 2^31-1
+#define MAX_INT           1073741823  // Maximum possible integer = 2^30-1
+// Max no. of bases allowed for sum col. of table = (MAX_INT-1)/65535 = 2^15
 #define MAX_N_BASE_SUM    16384
 //#define MAX_N_BASE_SUM    32768
-// max no. of bases allowed for each cell = MAX_N_BASE_SUM / 5
+// Max no. of bases allowed for each cell = MAX_N_BASE_SUM / 5
 #define MAX_N_BASE        3276
 //#define MAX_N_BASE        6553
 
@@ -73,7 +73,7 @@ typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 template <typename T>
 constexpr T cPower(T b, u64 e, T result=1)
 {
-    return (e<1 ? result : cPower(b*b, e/2, (e%2) ? result*b : result));
+    return (e<1 ? result : cPower(b*b, e>>1, e&1 ? result*b : result));
 }
 
 //template <typename T>
