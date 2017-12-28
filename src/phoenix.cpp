@@ -12,11 +12,9 @@
 #include <inttypes.h>
 
 #if defined(_MSC_VER)
-#include <io.h>
+    #include <io.h>
 #else
-
-#include <unistd.h>
-
+    #include <unistd.h>
 #endif
 
 #include "def.h"
@@ -34,11 +32,10 @@ using std::thread;
 ///////////////////////////////////////////////////////////
 int main (int argc, char *argv[])
 {
-    high_resolution_clock::time_point exeStartTime =
-            high_resolution_clock::now();   // Record start time
+    auto startTime = high_resolution_clock::now();    // Start time
 
     FCM mixModel;       // Object on memory stack
-    mixModel.setStartTime(exeStartTime);
+    mixModel.setStartTime(startTime);
 
     // Parse the command line
     commandLineParser(argc, argv, mixModel);
@@ -165,7 +162,7 @@ int main (int argc, char *argv[])
 ////    high_resolution_clock::time_point exeFinishTime =
 ////            high_resolution_clock::now();   // Record end time
 ////    // Calculate and show duration in seconds
-////    std::chrono::duration< double > elapsed = exeFinishTime - exeStartTime;
+////    std::chrono::duration< double > elapsed = exeFinishTime - startTime;
 ////
 ////    cout  // Elapsed time depends on slowest thread
 ////            << "Elapsed time: "

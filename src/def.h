@@ -71,13 +71,13 @@ typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 *******************************************************************************/
 // Power: Base^Exponent
 template <typename T>
-constexpr T cPower(T b, u64 e, T result=1)
+constexpr T POWER(T b, u64 e, T result=1)
 {
-    return (e<1 ? result : cPower(b*b, e>>1, e&1 ? result*b : result));
+    return (e<1 ? result : POWER(b*b, e>>1, e&1 ? result*b : result));
 }
 
 //template <typename T>
-//constexpr T cPower(T b, u64 e) { return (e==0) ? 1 : b*cPower(b, e-1); }
+//constexpr T POWER(T b, u64 e) { return (e==0) ? 1 : b*POWER(b, e-1); }
 
 
 /*******************************************************************************
