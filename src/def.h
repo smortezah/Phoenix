@@ -41,30 +41,26 @@ typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
 /*******************************************************************************
     Constants
 *******************************************************************************/
-#define ALPH_SUM_SIZE     6           // ALPHABET_SIZE+1: 1 more col. for 'sum'
-#define LOG2_ALPH_SIZE    2.3219281   // log2 of 5 (ALPHABET_SIZE)
-#define TABLE_MAX_CTX     12          // Max context depth for building table
-//#define TABLE_MAX_CTX     0          // Max context depth for building table
-#define IR_MAGIC_NUM      4           // For IR calculation
-
-constexpr u8 DEFAULT_N_THREADS = 2;           // Default number of threads
-#define N_FREE_THREADS    1
-#define DEFAULT_GAMMA     0.95        // Default gamma (mixture of FCMs)
-
-#define COMP_FILETYPE     ".co"       // Compressed file type
-#define DECOMP_FILETYPE   ".de"       // Decompressed file type
-#define WATERMARK         20170324    // Used in compression/decompression
-#define BUFFER_SIZE       262144      // Used in decompression
-
-#define DOUBLE_TO_INT     65535       // For converting double to integer
-//#define MAX_INT           2147483647 // Maximum possible integer = 2^31-1
-#define MAX_INT           1073741823  // Maximum possible integer = 2^30-1
+constexpr double LOG2_ALPH_SIZE    = 2.3219281;   // log2 of 5 (ALPHABET_SIZE)
+constexpr u8     ALPH_SUM_SIZE     = 6;           // ALPHABET_SIZE+1: 1 more col. for 'sum'
+constexpr u8     TABLE_MAX_CTX     = 12;         // Max context depth for building table
+constexpr u8     IR_MAGIC_NUM      = 4;          // For IR calculation
+constexpr u8     DEFAULT_N_THREADS = 2;           // Default number of threads
+constexpr u8     N_FREE_THREADS    = 1;
+constexpr double DEFAULT_GAMMA     = 0.95;       // Default gamma (mixture of FCMs)
+const     string COMP_FILETYPE     = ".co";       // Compressed file type
+const     string DECOMP_FILETYPE   = ".de" ;      // Decompressed file type
+constexpr u64    WATERMARK         = 20180101;   // Used in compression/decompression
+constexpr u64    BUFFER_SIZE       = 262144;      // Used in decompression
+constexpr u64    DOUBLE_TO_INT     = 65535;       // For converting double to integer
+//constexpr u64 MAX_INT              = 2147483647; // Maximum possible integer = 2^31-1
+constexpr u64    MAX_INT           = 1073741823;  // Maximum possible integer = 2^30-1
 // Max no. of bases allowed for sum col. of table = (MAX_INT-1)/65535 = 2^15
-#define MAX_N_BASE_SUM    16384
-//#define MAX_N_BASE_SUM    32768
+constexpr u64    MAX_N_BASE_SUM    = 16384;
+//constexpr u64 MAX_N_BASE_SUM       = 32768;
 // Max no. of bases allowed for each cell = MAX_N_BASE_SUM / 5
-#define MAX_N_BASE        3276
-//#define MAX_N_BASE        6553
+constexpr u64    MAX_N_BASE        = 3276;
+//constexpr u64    MAX_N_BASE        = 6553;
 
 
 /*******************************************************************************

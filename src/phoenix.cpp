@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
     auto startTime = high_resolution_clock::now();    // Start time
 
     FCM mixModel;       // Object on memory stack
-    mixModel.startTime=startTime;
+    mixModel.startTime = startTime;
 
     // Parse the command line
     commandLineParser(argc, argv, mixModel);
@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
 //    thread *arrThread;
 //
 //    // Build reference(s) model(s) -- multithreaded
-//    u16 n_models   = mixModel.getN_models();
+//    u16 n_models   = mixModel.n_models;
 //    u16 n_threads  = mixModel.getN_threads();
 //    u16 arrThrSize = (n_models > n_threads)
 //                     ? n_threads : n_models;  // Size of threads array
@@ -53,9 +53,9 @@ int main (int argc, char *argv[])
 //        //TODO: aya jaygozini vase sharte "i+j < n_models" hast?
 //        for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
 //            arrThread[j] = thread( &FCM::buildModel, &mixModel,
-//                                   mixModel.getRefAddr(),
-//                                   mixModel.getIR()[i+j],
-//                                   mixModel.getCtxDepth()[i+j], i+j );
+//                                   mixModel.(),
+//                                   mixModel.invRepeats[i+j],
+//                                   mixModel.ctxDepths[i+j], i+j );
 //        for (u16 j = 0; j < arrThrSize && i+j < n_models; ++j)
 //            if (arrThread[j].joinable())
 //                arrThread[j].join();
@@ -69,7 +69,7 @@ int main (int argc, char *argv[])
 //    u16 n_threads_available = (u16) ( !MAX_N_THREADS
 //                                      ? DEFAULT_N_THREADS - N_FREE_THREADS
 //                                      : MAX_N_THREADS - N_FREE_THREADS );
-//    u16 n_targets = (u16) mixModel.getTarAddr().size(); //up to 2^16=65536 tars
+//    u16 n_targets = (u16) mixModel.tarAddr.size(); //up to 2^16=65536 tars
 //
 //    u16 arrThrSize = (n_targets > n_threads_available)
 //                      ? n_threads_available : n_targets;
@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
 //    */
 //
 //    // Compress target(s) using reference(s) model(s) -- multithreaded
-//    u16 n_targets = (u16) mixModel.getTarAddr().size();  // Up to 2^16=65536 targets
+//    u16 n_targets = (u16) mixModel.tarAddr.size();  // Up to 2^16=65536 targets
 //    // Modify threads array size
 //    arrThrSize = (n_targets > n_threads) ? n_threads : n_targets;
 //    arrThread = new thread[arrThrSize];                // Resize threads array
@@ -85,7 +85,7 @@ int main (int argc, char *argv[])
 //    {
 //        for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
 //            arrThread[ j ] = thread( &FCM::compress, &mixModel,
-//                                     mixModel.getTarAddr()[i+j] );
+//                                     mixModel.tarAddr[i+j] );
 //        for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
 //            if (arrThread[j].joinable())
 //                arrThread[j].join();
@@ -93,18 +93,18 @@ int main (int argc, char *argv[])
 //    delete[] arrThread;
 //
 ////    // Decompress
-////    if (mixModel.getDecompFlag())
+////    if (mixModel.decompFlag)
 ////    {
 ////        FCM decModel;
 ////        // Reference(s) and target(s) address(es)
-////        for (string s : mixModel.getRefAddr())  decModel.pushRefAddr(s);
-////        for (string s : mixModel.getTarAddr())  decModel.pushTarAddr(s);
+////        for (string s : mixModel.())  decModel.refAddr.push_back(s);
+////        for (string s : mixModel.tarAddr)  decModel.tarAddr.push_back(s);
 ////
 ////        // Extract header information
-////        decModel.extractHeader(decModel.getTarAddr()[ 0 ]);
+////        decModel.extractHeader(decModel.tarAddr[ 0 ]);
 ////
 ////        // Build reference(s) model(s) -- multithreaded
-////        n_models   = mixModel.getN_models();
+////        n_models   = mixModel.n_models;
 ////        n_threads  = mixModel.getN_threads();      // Set based on command line
 ////        arrThrSize = (n_models > n_threads)
 ////                     ? n_threads : n_models;       // Size of threads array
@@ -113,9 +113,9 @@ int main (int argc, char *argv[])
 ////        {
 ////            for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
 ////                arrThread[ j ] = thread( &FCM::buildModel, &decModel,
-////                                         decModel.getRefAddr(),
-////                                         decModel.getIR()[i+j],
-////                                         decModel.getCtxDepth()[i+j], i + j );
+////                                         decModel.refAddr,
+////                                         decModel.invRepeats[i+j],
+////                                         decModel.ctxDepths[i+j], i + j );
 ////            for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
 ////                if (arrThread[j].joinable())
 ////                    arrThread[j].join();
@@ -130,7 +130,7 @@ int main (int argc, char *argv[])
 ////        {
 ////            for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
 ////                arrThread[ j ] = thread( &FCM::decompress, &decModel,
-////                                        decModel.getTarAddr()[i+j] );
+////                                        decModel.tarAddr[i+j] );
 ////            for (u16 j = 0; j < arrThrSize && i + j < n_targets; ++j)
 ////                if (arrThread[j].joinable())
 ////                    arrThread[j].join();
@@ -138,20 +138,20 @@ int main (int argc, char *argv[])
 ////        delete[] arrThread;
 ////
 ////        // Check equality of decompressed & tar. files (check lossless comp.)
-////        for (string s : decModel.getTarAddr())
+////        for (string s : decModel.tarAddr)
 ////            if (!areFilesEqual(s, s + DECOMP_FILETYPE))
 ////            {
 ////                cerr << "Lossless compression/decompression of '" << s
 ////                     << "' failed.\n";
 ////                exit(1);
 ////            }
-////        u8 tarsNo = (u8) decModel.getTarAddr().size();
+////        u8 tarsNo = (u8) decModel.tarAddr.size();
 ////        size_t lastSlashPos;
 ////        string tarNamesPure[tarsNo];
 ////        for (u8 i = tarsNo; i--;)
 ////        {
-////            lastSlashPos = decModel.getTarAddr()[ i ].find_last_of("/");
-////            tarNamesPure[i] = decModel.getTarAddr()[i].substr(lastSlashPos + 1);
+////            lastSlashPos = decModel.tarAddr[ i ].find_last_of("/");
+////            tarNamesPure[i] = decModel.tarAddr[i].substr(lastSlashPos + 1);
 ////        }
 ////        cout << "Lossless compression and decompression of '";
 ////        for (int i = 0; i < tarsNo-1; ++i) cout << tarNamesPure[ i ] << "', '";

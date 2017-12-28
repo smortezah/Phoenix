@@ -79,34 +79,12 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
                 if (optarg) cout << " with arg " << optarg << '\n';
                 break;
             
-            case 'h':   // Usage guide
-                h_flag = 1;
-                help();
-                break;
-            
-            case 'v':   // Verbose mode
-                v_flag = 1;
-                break;
-            
-            case 'd':   // Decompression mode
-                d_flag = 1;
-                mixModel.setDecompFlag(true);
-                break;
-            
-            case 'm':   // Needs model(s) parameters
-                m_flag = true;
-                strModelsParameters = (string) optarg;  // Keep model(s) params
-                break;
-            
-            case 'r':   // Needs reference file(s) name(s)
-                r_flag = true;
-                refFilesNames = (string) optarg;       // Keep ref. files names
-                break;
-            
-            case 't':   // Needs target file(s) name(s)
-                t_flag = true;
-                tarFilesNames = (string) optarg;       // Keep tar. files names
-                break;
+            case 'h': h_flag = 1;   help();                               break;
+            case 'v': v_flag = 1;                                         break;
+            case 'd': d_flag = 1;   mixModel.decompFlag = true;           break;
+            case 'm': m_flag=true;  strModelsParameters=(string) optarg;  break;
+            case 'r': r_flag=true;  refFilesNames      =(string) optarg;  break;
+            case 't': t_flag=true;  tarFilesNames      =(string) optarg;  break;
             
             case 'n':   // Needs an integer argument
                 try
@@ -126,26 +104,25 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
                 try
                 {
                     double gamma = stod( (string) optarg );
-                    mixModel.setGamma( (gamma < 0 || gamma >= 1)
-                                       ? DEFAULT_GAMMA : gamma );
+                    mixModel.gamma =
+                            (gamma<0 || gamma>=1) ? DEFAULT_GAMMA : gamma;
                 }
                 catch (const invalid_argument &ia)
                 {
-                    cerr << "ERROR: Option 'g' ('gamma') has an "
+                    cerr << "Error: Option 'g' ('gamma') has an "
                             "invalid argument.\n";
                     return;
                 }
                 break;
             
             case ':':   // Missing option argument
-                cerr << "ERROR: Option '" << (char) optopt
+                cerr << "Error: Option '" << (char) optopt
                      << "' requires an argument.\n";
                 break;
             
             case '?':   // Invalid option
             default:
-                cerr << "ERROR: Option '" << (char) optopt
-                     << "' is invalid.\n";
+                cerr << "Error: Option '" << (char) optopt << "' is invalid.\n";
                 break;
         }
     }
@@ -160,11 +137,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             if (*it == ',')
             {
-                mixModel.pushTarAddr( string(begIter, it) );
+                mixModel.tarAddr.push_back( string(begIter, it) );
                 begIter = it + 1;
             }
         }
-        mixModel.pushTarAddr( string(begIter, endIter) );     // last tar. name
+        mixModel.tarAddr.push_back( string(begIter, endIter) );     // last tar. name
         
         /*  Slower
         u8 tarIndex = (u8) tarFilesNames.size();
@@ -179,7 +156,7 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             }
         }
         // save last target file name
-        mixModel.pushTarAddr(tarFilesNames.substr(0, tarIndex));
+        mixModel.tarAddr.push_back(tarFilesNames.substr(0, tarIndex));
         */
     }
     
@@ -193,11 +170,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             if (*it == ',')
             {
-                mixModel.pushRefAddr( string(begIter, it) );
+                mixModel.refAddr.push_back( string(begIter, it) );
                 begIter = it + 1;
             }
         }
-        mixModel.pushRefAddr(string(begIter, endIter));     // Last ref. name
+        mixModel.refAddr.push_back(string(begIter, endIter));     // Last ref. name
         
         /*  Slower
         u8 refIndex = (u8) refFilesNames.size();
@@ -212,7 +189,7 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             }
         }
         // save last reference file name
-        mixModel.pushRefAddr(refFilesNames.substr(0, refIndex));
+        mixModel.refAddr.push_back(refFilesNames.substr(0, refIndex));
         */
     }
     
@@ -237,7 +214,6 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         vector< string > modelParams;               // Params for each model
         u8 n_models = (u8) vecModelsParams.size();  // Number of models
         mixModel.n_models = n_models;             // Set number of models
-//        mixModel.setN_models(n_models);             // Set number of models
                                                  cout<<mixModel.n_models;
         for (u8 n = n_models; n--;)
         {
@@ -258,18 +234,18 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             modelParams.push_back( string(begIter, endIter) );
                                                                
             // Set model(s) parameters
-            mixModel.pushParams((bool) stoi(modelParams[ 0 ]),  // IR
-                                (u8) stoi(modelParams[ 1 ]),    // Ctx depth
-                                (u16) stoi(modelParams[ 2 ]));  // Alpha denom.
+            mixModel.invRepeats.push_back((bool) stoi(modelParams[0]));
+            mixModel.ctxDepths.push_back((u8)    stoi(modelParams[1]));
+            mixModel.alphaDens.push_back((u16)   stoi(modelParams[2]));
         }
         
         // Set compression mode: 't'=table, 'h'=hash table
         // 5^k_1 + 5^k_2 + ... > 5^12 ==> mode: hash table
         u64 cmpModeSum = 0;
-        for(u8 k : mixModel.getCtxDepth()) cmpModeSum = cmpModeSum + POWER5[k];
+        for(u8 k : mixModel.ctxDepths) cmpModeSum = cmpModeSum + POWER5[k];
         const char compressionMode = (cmpModeSum > POWER5[TABLE_MAX_CTX])
                                      ? 'h' : 't';
-        mixModel.setCompMode(compressionMode);
+        mixModel.compMode = compressionMode;
         
         // Initialize vector of tables or hash tables
         compressionMode == 'h' ? mixModel.initHashTables()
@@ -298,13 +274,13 @@ bool areFilesEqual (const string &first, const string &second)
     // Error occurred while opening files
     if (!firstFile)
     {
-        cerr << "ERROR: The file '" << first
+        cerr << "Error: The file '" << first
              << "' cannot be opened, or it is empty.\n";
         exit(1);
     }
     else if (!secondFile)
     {
-        cerr << "ERROR: The file '" << second
+        cerr << "Error: The file '" << second
              << "' cannot be opened, or it is empty.\n";
         exit(1);
     }

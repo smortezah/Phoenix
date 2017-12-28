@@ -43,6 +43,13 @@ FCM::FCM ()
 
 
 /*******************************************************************************
+    Initialization
+*******************************************************************************/
+void  FCM::initTables     () { tables     = new u64* [n_models];    }
+void  FCM::initHashTables () { hashTables = new htable_t[n_models]; }
+
+
+/*******************************************************************************
     Build reference(s) model
 *******************************************************************************/
 void FCM::buildModel (const vector<string> &refsNames,
@@ -154,7 +161,7 @@ void FCM::buildModel (const vector<string> &refsNames,
             
             
             // Set table
-            mut.lock();   this->setTable(table, modelIndex);   mut.unlock();
+            mut.lock();   this->tables[modelIndex] = table;   mut.unlock();
         }   // End case
             break;
         
@@ -256,7 +263,7 @@ void FCM::buildModel (const vector<string> &refsNames,
 //            cout<<n_div;
             
             // Set hash table
-            mut.lock(); this->setHashTable(hashTable, modelIndex); mut.unlock();
+            mut.lock(); this->hashTables[modelIndex] = hashTable; mut.unlock();
         }   // End case
             break;
         
@@ -534,13 +541,13 @@ void FCM::compress (const string &tarName)
     averageEntropy = (double) (-1) * sumOfEntropies / symsNo;
 
     // Print reference and target file names
-    u8 refsAdressesSize = (u8) getRefAddr().size();
+    u8 refsAdressesSize = (u8) refAddr.size();
     size_t lastSlash_Ref[refsAdressesSize];
     string refNamesPure[refsAdressesSize];
     for (u8 i = refsAdressesSize; i--;)
     {
-        lastSlash_Ref[ i ] = getRefAddr()[ i ].find_last_of("/");
-        refNamesPure[ i ]  = getRefAddr()[ i ].substr(lastSlash_Ref[ i ] + 1);
+        lastSlash_Ref[ i ] = refAddr[ i ].find_last_of("/");
+        refNamesPure[ i ]  = refAddr[ i ].substr(lastSlash_Ref[ i ] + 1);
     }
     
     
@@ -557,8 +564,8 @@ void FCM::compress (const string &tarName)
          //       << std::fixed << setprecision(5) << averageEntropy << '\t'
          << std::fixed << setprecision(4) << averageEntropy / LOG2_ALPH_SIZE
          << '\t' // NRC
-         << getIR()[0]  << '\t'
-         << (int) getCtxDepth()[0] << '\t'
+         << invRepeats[0]  << '\t'
+         << (int) ctxDepths[0] << '\t'
          << std::fixed << setprecision(4) << alpha[0] << '\t'
          << std::fixed << setprecision(3) << elapsed.count()
          << '\n';
@@ -588,25 +595,23 @@ void FCM::extractHeader (const string &tarName)
     // Extract header information
     if (arithObj.ReadNBits(26, Reader) != WATERMARK)      // Watermark check-in
     {
-        cerr << "ERROR: Invalid compressed file!\n";
+        cerr << "Error: Invalid compressed file!\n";
         exit(1);
     }
     arithObj.ReadNBits(46, Reader);     // File size
-    this->setGamma( round((double) arithObj.ReadNBits(32, Reader)/65536 * 100)
-                    / 100 );            // Gamma
+    this->gamma =             // Gamma
+            round((double) arithObj.ReadNBits(32, Reader)/65536 * 100) / 100;
+
     u64 no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
     this->n_models = (u8) no_models;
-//    this->setN_models((u8) no_models);
-    bool ir;    u8 k;   u16 aD;
     for (u8 n = 0; n < no_models; ++n)
     {
-        ir = (bool) arithObj.ReadNBits(1,  Reader);
-        k  = (u8)   arithObj.ReadNBits(16, Reader);
-        aD = (u16)  arithObj.ReadNBits(16, Reader);
-        this->pushParams(ir, k, aD);    // ir, ctx depth, alpha denom
+        this->invRepeats.push_back((bool) arithObj.ReadNBits(1,  Reader));
+        this->invRepeats.push_back((u8)   arithObj.ReadNBits(16, Reader));
+        this->invRepeats.push_back((u16)  arithObj.ReadNBits(16, Reader));
     }
     char compMode = (char) arithObj.ReadNBits(16, Reader);  // Compression mode
-    this->setCompMode(compMode);
+    this->compMode = compMode;
     // Initialize vector of tables/hash tables
     compMode == 'h' ? this->initHashTables() : this->initTables();
     
@@ -639,7 +644,7 @@ void FCM::decompress (const string &tarName)
     mut.unlock();//======================================================
     
     i32 idxOut = 0;
-    char *outBuffer = (char *) calloc(BUFFER_SIZE, sizeof(uint8_t));
+    char *outBuffer = (char*) calloc(BUFFER_SIZE, sizeof(uint8_t));
 
     arithObj.startinputtingbits();        // Start arithmetic decoding process
     arithObj.start_decode(Reader);
@@ -649,7 +654,7 @@ void FCM::decompress (const string &tarName)
     u64 symsNo = (u64) arithObj.ReadNBits(46, Reader);  // Number of symbols
     arithObj.ReadNBits(32, Reader);     // Gamma
     arithObj.ReadNBits(16, Reader);                     // Number of models
-    u8 no_models = this->getN_models();
+    u8 no_models = this->n_models;
     for (u8 n = 0; n < no_models; ++n)
     {
         arithObj.ReadNBits(1,  Reader);                 // Inverted repeats
@@ -700,7 +705,7 @@ void FCM::decompress (const string &tarName)
     
                     for (u8 j = ALPH_SIZE; j--;)
                         freqsDouble[ j ] +=
-                              weight[i] * this->getTables()[i][ rowIndex + j ];
+                              weight[i] * this->tables[i][ rowIndex + j ];
                 }
                 // Frequencies (integer)
                 for (u8 j = ALPH_SIZE; j--;)
@@ -765,7 +770,7 @@ void FCM::decompress (const string &tarName)
                 for (u8 i = no_models; i--;)
                 {
                     // Save the row of hash table into an array
-                    hTRowArray = this->getHashTables()[ i ][ tarContext[ i ] ];
+                    hTRowArray = this->hashTables[ i ][ tarContext[ i ] ];
                     
                     for (u8 j = ALPH_SIZE; j--;)
                         freqsDouble[ j ] += weight[ i ] * hTRowArray[ j ];
@@ -793,7 +798,7 @@ void FCM::decompress (const string &tarName)
                 
                 for (u8 i = no_models; i--;)
                 {
-                    hTRowArray = this->getHashTables()[ i ][ tarContext[ i ]];
+                    hTRowArray = this->hashTables[ i ][ tarContext[ i ]];
                     
                     sumNSym = 0; for (u64 u : hTRowArray) sumNSym = sumNSym + u;
                     nSym = hTRowArray[ currSymInt ];        // # syms
@@ -845,7 +850,7 @@ inline u8 FCM::symCharToInt (char charSym) const
         
 //        case 'N':   return 2;
 //        default:
-//            cerr << "ERROR: unknown symbol '" << charSym << "'\n";
+//            cerr << "Error: unknown symbol '" << charSym << "'\n";
 //            exit(1);
     }
     
@@ -872,7 +877,7 @@ inline char FCM::symIntToChar (u8 intSym) const
         case 4: return 'T';
         case 3: return 'G';
         case 2: return 'N';
-        default: cerr << "ERROR: unknown integer '" << intSym << "'\n"; exit(1);
+        default: cerr << "Error: unknown integer '" << intSym << "'\n"; exit(1);
     }
 }
 
@@ -940,11 +945,11 @@ inline u64 FCM::fileSize (const string &fileName)
 *******************************************************************************/
 inline void FCM::printHashTable (u8 idx) const
 {
-    htable_t hT = this->getHashTables()[ idx ];
-    for (auto it = hT.begin(); it != hT.end(); ++it)
+    htable_t hT = this->hashTables[ idx ];
+    for (auto m : hT)
     {
-        cout << it->first << "\t";
-        for (u64 i : it->second)    cout << i << "\t";
+        cout << m.first << "\t";
+        for (u64 i : m.second)    cout << i << "\t";
         cout << '\n';
     }
 
@@ -974,35 +979,4 @@ inline void FCM::printHashTable (u8 idx) const
 //        cout << '\n';
 //    }
 //    cout << '\n';
-    
 }
-
-
-/*******************************************************************************
-    Getters and setters
-*******************************************************************************/
-const vector<bool>&   FCM::getIR         () const   { return invRepeats;       }
-const vector<u8>&     FCM::getCtxDepth   () const   { return ctxDepths;        }
-const vector<string>& FCM::getTarAddr    () const   { return tarAddr;          }
-const vector<string>& FCM::getRefAddr    () const   { return refAddr;          }
-u64**                 FCM::getTables     () const   { return tables;           }
-//u16**                 FCM::getTables     () const   { return tables;         }
-htable_t*             FCM::getHashTables () const   { return hashTables;       }
-bool  FCM::getDecompFlag                 () const   { return decompFlag;       }
-u16   FCM::getN_models                   () const   { return n_models;         }
-//u32   FCM::getN_div                      () const   { return n_div;          }
-void  FCM::initTables     ()             { tables = new u64* [n_models];       }
-//void  FCM::initTables     ()            { tables = new u16* [n_models];      }
-void  FCM::initHashTables ()             { hashTables = new htable_t[n_models];}
-void  FCM::setDecompFlag  (bool dF)      { FCM::decompFlag = dF;               }
-void  FCM::setCompMode    (char cM)      { compMode = cM;                      }
-//void  FCM::setN_models    (u16 n)        { n_models = n;                       }
-void  FCM::setGamma       (double g)     { gamma = g;                          }
-//void  FCM::setN_div       (u32 nD)      { n_div = nD;                        }
-void  FCM::pushTarAddr    (const string &tFAs)      { tarAddr.push_back(tFAs); }
-void  FCM::pushRefAddr    (const string &rFAs)      { refAddr.push_back(rFAs); }
-void  FCM::setTable       (u64 *tbl, u8 idx)        { tables[ idx ] = tbl;     }
-//void  FCM::setTable       (u16 *tbl, u8 idx)         { tables[ idx ] = tbl;  }
-void  FCM::setHashTable   (const htable_t &ht, u8 idx) { hashTables[idx] = ht; }
-void  FCM::pushParams     (bool iR, u8 ctx, u16 aD) { invRepeats.push_back(iR);
-                            ctxDepths.push_back(ctx); alphaDens.push_back(aD); }
