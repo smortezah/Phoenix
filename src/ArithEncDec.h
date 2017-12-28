@@ -47,10 +47,10 @@ part of each and every copy made of these files.
 *******************************************************************************/
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+#include <cstdint>
 
 #include "def.h"
 
@@ -218,17 +218,17 @@ public:
     int  ReadNBits           (u32,  FILE*);          // Read N bits from a file
     void AESym               (u8,   int*, int,  FILE*);  // Arithmetic encoding
     u8   ADSym               (u8,   int*, int,  FILE*);  // Arithmetic decoding
-    void start_encode        (void);
+    void start_encode        ();
     void finish_encode       (FILE*);
     void start_decode        (FILE*);
-    void finish_decode       (void);
+    void finish_decode       ();
     void arithmetic_encode   (freq_value, freq_value, freq_value, FILE*);
     void arithmetic_decode   (freq_value, freq_value, freq_value, FILE*);
     freq_value arithmetic_decode_target (freq_value);
-    void startoutputtingbits (void);
-    void startinputtingbits  (void);
+    void startoutputtingbits ();
+    void startinputtingbits  ();
     void doneoutputtingbits  (FILE*);
-    void doneinputtingbits   (void);
+    void doneinputtingbits   ();
 
 //    void binary_arithmetic_encode(freq_value, freq_value, int, FILE*);
 //    int  binary_arithmetic_decode(freq_value, freq_value, FILE*);
@@ -474,7 +474,7 @@ void ArithEncDec::arithmetic_decode (freq_value low, freq_value high,
 /*******************************************************************************
     Start the encoder
 *******************************************************************************/
-void ArithEncDec::start_encode (void)
+void ArithEncDec::start_encode ()
 {
 	/// Set initial coding range to [0,Half)
 	out_L = 0;
@@ -531,7 +531,7 @@ void ArithEncDec::start_decode (FILE *s)
     consume.) (They were mangled anyway as we only kept V-L, and cannot get back
     to V)
 *******************************************************************************/
-void ArithEncDec::finish_decode (void)
+void ArithEncDec::finish_decode ()
 {
 	/// No action
 }
@@ -540,7 +540,7 @@ void ArithEncDec::finish_decode (void)
 /*******************************************************************************
     Initialize the bit output function
 *******************************************************************************/
-void ArithEncDec::startoutputtingbits (void)
+void ArithEncDec::startoutputtingbits ()
 {
 	_out_buffer = 0;
 	_out_bits_to_go = BYTE_SIZE;
@@ -550,7 +550,7 @@ void ArithEncDec::startoutputtingbits (void)
 /*******************************************************************************
     Start the bit input function
 *******************************************************************************/
-void ArithEncDec::startinputtingbits (void)
+void ArithEncDec::startinputtingbits ()
 {
 	_in_garbage = 0;	/// Number of bytes read past end of file
 	_in_bit_ptr = 0;	/// No valid bits yet in input buffer
@@ -571,7 +571,7 @@ void ArithEncDec::doneoutputtingbits (FILE *s)
 /*******************************************************************************
     Complete inputting bits
 *******************************************************************************/
-void ArithEncDec::doneinputtingbits (void)
+void ArithEncDec::doneinputtingbits ()
 {
 	_in_bit_ptr = 0;	/// "Wipe" buffer (in case more input follows)
 }
@@ -712,6 +712,5 @@ inline void ArithEncDec::DECODE_RENORMALISE (FILE *s)
         }
     } while (0);
 }
-
 
 #endif //PHOENIX_ARITHENCDEC_H
