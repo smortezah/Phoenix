@@ -15,6 +15,10 @@ using std::chrono::high_resolution_clock;
 class FCM
 {
 public:
+    high_resolution_clock::time_point startTime;    // Start time
+    u16            n_threads;          // # threads
+    u16            n_models;           // # models
+    
     FCM ();                                // Constructor
     void   initTables          ();         // Initialize vector of tables
     void   initHashTables      ();         // Initialize vector of hash tables
@@ -43,14 +47,11 @@ public:
 //    u16**                 getTables     () const;   // Get table(s)
     htable_t*             getHashTables () const;   // Get hash table(s)
     bool  getDecompFlag                 () const;   // Get decompress flag
-    u16   getN_threads                  () const;   // Get number of threads
     u16   getN_models                   () const;   // Get number of models
 //    u32   getN_div                      () const; // Get number of divisions
-    void  setStartTime    (const high_resolution_clock::time_point&);
     void  setDecompFlag   (bool);                   // Set decompress flag
-    void  setN_threads    (u16);                    // Set number of threads
     void  setCompMode     (char);                   // Set compression mode
-    void  setN_models     (u16);                    // Set number of models
+//    void  setN_models     (u16);                    // Set number of models
     void  setGamma        (double);                 // Set gamma
 //    void  setN_div        (u32);                   // Set number of divisions
     void  pushTarAddr     (const string&);          // Push back tars. addr.
@@ -70,13 +71,10 @@ public:
 
 private:
     std::mutex     mut;                // Mutex
-    high_resolution_clock::time_point startTime;   // Start time
     
-    u16            n_threads;          // Number of threads
     bool           decompFlag;         // Decompress flag
     
     char           compMode;           // Compression mode (table / hash table)
-    u16            n_models;           // Number of models
     double         gamma;              // Gamma (for mixture of FCMs)
     vector<bool>   invRepeats;         // Inverted repeat(s)
     vector<u8>     ctxDepths;          // Context depthe(s) (SIZE <= 255)

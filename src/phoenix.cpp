@@ -35,7 +35,7 @@ int main (int argc, char *argv[])
     auto startTime = high_resolution_clock::now();    // Start time
 
     FCM mixModel;       // Object on memory stack
-    mixModel.setStartTime(startTime);
+    mixModel.startTime=startTime;
 
     // Parse the command line
     commandLineParser(argc, argv, mixModel);

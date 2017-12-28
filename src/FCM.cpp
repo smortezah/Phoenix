@@ -595,7 +595,8 @@ void FCM::extractHeader (const string &tarName)
     this->setGamma( round((double) arithObj.ReadNBits(32, Reader)/65536 * 100)
                     / 100 );            // Gamma
     u64 no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
-    this->setN_models((u8) no_models);
+    this->n_models = (u8) no_models;
+//    this->setN_models((u8) no_models);
     bool ir;    u8 k;   u16 aD;
     for (u8 n = 0; n < no_models; ++n)
     {
@@ -988,16 +989,14 @@ u64**                 FCM::getTables     () const   { return tables;           }
 //u16**                 FCM::getTables     () const   { return tables;         }
 htable_t*             FCM::getHashTables () const   { return hashTables;       }
 bool  FCM::getDecompFlag                 () const   { return decompFlag;       }
-u16   FCM::getN_threads                  () const   { return n_threads;        }
 u16   FCM::getN_models                   () const   { return n_models;         }
 //u32   FCM::getN_div                      () const   { return n_div;          }
 void  FCM::initTables     ()             { tables = new u64* [n_models];       }
 //void  FCM::initTables     ()            { tables = new u16* [n_models];      }
 void  FCM::initHashTables ()             { hashTables = new htable_t[n_models];}
 void  FCM::setDecompFlag  (bool dF)      { FCM::decompFlag = dF;               }
-void  FCM::setN_threads   (u16 nT)       { n_threads = nT;                     }
 void  FCM::setCompMode    (char cM)      { compMode = cM;                      }
-void  FCM::setN_models    (u16 n)        { n_models = n;                       }
+//void  FCM::setN_models    (u16 n)        { n_models = n;                       }
 void  FCM::setGamma       (double g)     { gamma = g;                          }
 //void  FCM::setN_div       (u32 nD)      { n_div = nD;                        }
 void  FCM::pushTarAddr    (const string &tFAs)      { tarAddr.push_back(tFAs); }
@@ -1005,7 +1004,5 @@ void  FCM::pushRefAddr    (const string &rFAs)      { refAddr.push_back(rFAs); }
 void  FCM::setTable       (u64 *tbl, u8 idx)        { tables[ idx ] = tbl;     }
 //void  FCM::setTable       (u16 *tbl, u8 idx)         { tables[ idx ] = tbl;  }
 void  FCM::setHashTable   (const htable_t &ht, u8 idx) { hashTables[idx] = ht; }
-void  FCM::setStartTime   (const high_resolution_clock::time_point &sT)
-                                                    { FCM::startTime = sT;     }
 void  FCM::pushParams     (bool iR, u8 ctx, u16 aD) { invRepeats.push_back(iR);
                             ctxDepths.push_back(ctx); alphaDens.push_back(aD); }

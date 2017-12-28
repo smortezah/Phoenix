@@ -10,7 +10,6 @@
 #include <algorithm>    // std::remove
 
 #include "def.h"
-#include "messages.h"
 #include "FCM.h"
 
 using std::cout;
@@ -28,8 +27,6 @@ using std::ios;
 *******************************************************************************/
 void commandLineParser (int argc, char **argv, FCM &mixModel)
 {
-    Messages messageObj;
-    
     // Using these flags, if both short and long arguments are entered, just one
     // of them is considered
     static int h_flag;                  // Option 'h' (help)
@@ -84,12 +81,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             
             case 'h':   // Usage guide
                 h_flag = 1;
-                messageObj.help();
+                help();
                 break;
             
             case 'v':   // Verbose mode
                 v_flag = 1;
-                messageObj.verbose();
                 break;
             
             case 'd':   // Decompression mode
@@ -115,9 +111,8 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             case 'n':   // Needs an integer argument
                 try
                 {
-                    u8 n_threads = (u8) stoi((string) optarg);
-                    mixModel.setN_threads( (n_threads < 1)
-                                         ? (u8) DEFAULT_N_THREADS : n_threads );
+                    u8 nThr = (u8) stoi((string) optarg);
+                    mixModel.n_threads = (nThr<1 ? DEFAULT_N_THREADS : nThr);
                 }
                 catch (const invalid_argument &ia)
                 {
@@ -241,8 +236,9 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
                                                                
         vector< string > modelParams;               // Params for each model
         u8 n_models = (u8) vecModelsParams.size();  // Number of models
-        mixModel.setN_models(n_models);             // Set number of models
-                                                   
+        mixModel.n_models = n_models;             // Set number of models
+//        mixModel.setN_models(n_models);             // Set number of models
+                                                 cout<<mixModel.n_models;
         for (u8 n = n_models; n--;)
         {
             modelParams.clear();                    // Reset vector modelParams
