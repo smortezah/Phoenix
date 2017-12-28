@@ -52,7 +52,7 @@ void  FCM::initHashTables () { hashTables = new htable_t[n_models]; }
 /*******************************************************************************
     Build reference(s) model
 *******************************************************************************/
-void FCM::buildModel (const vector<string> &refsNames,
+void FCM::buildModel (vector<string> const& refsNames,
                       bool invRepeat, u8 ctxDepth, u16 modelIndex)
 {
     auto refsNo = (u8) refsNames.size();    // # references
@@ -275,7 +275,7 @@ void FCM::buildModel (const vector<string> &refsNames,
 /*******************************************************************************
     Compress target(s) based on reference(s) model
 *******************************************************************************/
-void FCM::compress (const string &tarName)
+void FCM::compress (string const& tarName)
 {
 //    ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
     
@@ -574,7 +574,7 @@ void FCM::compress (const string &tarName)
 /*******************************************************************************
     Read header for decompression
 *******************************************************************************/
-void FCM::extractHeader (const string &tarName)
+void FCM::extractHeader (string const& tarName)
 {
     ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
     
@@ -621,7 +621,7 @@ void FCM::extractHeader (const string &tarName)
 /*******************************************************************************
     Decompress target(s) based on reference(s) model
 *******************************************************************************/
-void FCM::decompress (const string &tarName)
+void FCM::decompress (string const& tarName)
 {
     ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
     
@@ -901,7 +901,7 @@ inline double FCM::fastPow (double base, double exponent)
 /*******************************************************************************
     Count number of symbols in a file
 *******************************************************************************/
-inline u64 FCM::countSymbols (const string &fileName)
+inline u64 FCM::countSymbols (string const& fileName)
 {
     ifstream fileIn(fileName, ios::in); // Open file
     
@@ -928,7 +928,7 @@ inline u64 FCM::countSymbols (const string &fileName)
 /*******************************************************************************
     Size of file, in bytes
 *******************************************************************************/
-inline u64 FCM::fileSize (const string &fileName)
+inline u64 FCM::fileSize (string const& fileName)
 {
     // ios::ate seeks to end immediately after opening
     ifstream fileIn( fileName, ios::in | ios::ate );

@@ -33,24 +33,25 @@ public:
     FCM ();                                // Constructor
     void   initTables          ();         // Initialize vector of tables
     void   initHashTables      ();         // Initialize vector of hash tables
-                                                       
-    void   buildModel          (const vector<string>&,
+    
+    void   buildModel          (vector<string> const&,
                                 bool, u8, u16);     // Build reference(s) model
-    void   compress            (const string&);     // Compress target file
-    void   extractHeader       (const string&);     // Header inf. for decomp.
-    void   decompress          (const string&);     // Decompress target file
+    void   compress            (string const&);     // Compress target file
+    void   extractHeader       (string const&);     // Header inf. for decomp.
+    void   decompress          (string const&);     // Decompress target file
+    
+    inline u64    fileSize     (string const&);     // Size of file
+           
+//    void buildHashTable_str ();             // Build hash table (string key)
+
+private:
+    std::mutex     mut;                // Mutex
     
     inline char   symIntToChar (u8)        const;   // 01234 -> ACNGT
     inline u8     symCharToInt (char)      const;   // ACNGT -> 01234
     inline double fastPow      (double, double);    // Fast power
-    inline u64    fileSize     (const string&);     // Size of file
-    inline u64    countSymbols (const string&);     // Count no. syms in a file
-           
-//    void buildHashTable_str ();             // Build hash table (string key)
+    inline u64    countSymbols (string const&);     // Count no. syms in a file
     inline void   printHashTable (u8)      const;   // Print hash table
-
-private:
-    std::mutex     mut;                // Mutex
 };
 
 #endif //PHOENIX_FCM_H

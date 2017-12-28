@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
 //
 //    // Build reference(s) model(s) -- multithreaded
 //    u16 n_models   = mixModel.n_models;
-//    u16 n_threads  = mixModel.getN_threads();
+//    u16 n_threads  = mixModel.n_threads;
 //    u16 arrThrSize = (n_models > n_threads)
 //                     ? n_threads : n_models;  // Size of threads array
 //    arrThread = new thread[arrThrSize];
@@ -51,7 +51,7 @@ int main (int argc, char *argv[])
 //        //TODO: aya jaygozini vase sharte "i+j < n_models" hast?
 //        for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
 //            arrThread[j] = thread( &FCM::buildModel, &mixModel,
-//                                   mixModel.(),
+//                                   mixModel.refAddr,
 //                                   mixModel.invRepeats[i+j],
 //                                   mixModel.ctxDepths[i+j], i+j );
 //        for (u16 j = 0; j < arrThrSize && i+j < n_models; ++j)

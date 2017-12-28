@@ -25,7 +25,7 @@ using std::ios;
 /*******************************************************************************
     Parse command line
 *******************************************************************************/
-void commandLineParser (int argc, char **argv, FCM &mixModel)
+void commandLineParser (int argc, char **argv, FCM& mixModel)
 {
     // Using these flags, if both short and long arguments are entered, just one
     // of them is considered
@@ -90,7 +90,7 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
                     u8 nThr = (u8) stoi((string) optarg);
                     mixModel.n_threads = (nThr<1 ? DEFAULT_N_THREADS : nThr);
                 }
-                catch (const invalid_argument &ia)
+                catch (invalid_argument const& ia)
                 {
                     cerr << "Error: Option 'n' ('nthreads') has an "
                             "invalid argument.\n";
@@ -101,11 +101,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             case 'g':   // Needs a double argument
                 try
                 {
-                    double gamma = stod( (string) optarg );
+                    double gamma = stod((string) optarg);
                     mixModel.gamma =
-                            (gamma<0 || gamma>=1) ? DEFAULT_GAMMA : gamma;
+                            (gamma>=0 && gamma<1) ? gamma : DEFAULT_GAMMA;
                 }
-                catch (const invalid_argument &ia)
+                catch (invalid_argument const& ia)
                 {
                     cerr << "Error: Option 'g' ('gamma') has an "
                             "invalid argument.\n";
@@ -246,25 +246,24 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         mixModel.compMode = compressionMode;
         
         // Initialize vector of tables or hash tables
-        compressionMode == 'h' ? mixModel.initHashTables()
-                               : mixModel.initTables();
+        compressionMode=='h' ? mixModel.initHashTables()
+                             : mixModel.initTables();
     }
     
     // Print any remaining command line arguments (not options).
     if (optind < argc)
     {
         cerr << "Error: non-option ARGV-element(s): ";
-        while (optind < argc)   cerr << argv[ optind++ ] << " ";
+        while (optind < argc)   cerr << argv[optind++] << " ";
         cerr << '\n';
     }
-    
-}   // End commandLineParser
+}
 
 
 /*******************************************************************************
     Check if original and decompressed files are identical
 *******************************************************************************/
-bool areFilesEqual (const string &first, const string &second)
+bool areFilesEqual (string const& first, string const& second)
 {
     ifstream firstFile  (first,  ios::in);  // Open first file
     ifstream secondFile (second, ios::in);  // Open second file
@@ -311,7 +310,7 @@ bool areFilesEqual (const string &first, const string &second)
     Check if file opened correctly
 *******************************************************************************/
 /*
-//bool isFileCorrect (const string &fileName)
+//bool isFileCorrect (string const& fileName)
 bool Functions::isFileCorrect (ifstream &fileIn)
 {
     // check if file doesn't exist or is empty
