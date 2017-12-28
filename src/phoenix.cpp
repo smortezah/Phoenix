@@ -5,12 +5,10 @@
 #include <iomanip>      // setw, setprecision
 #include <thread>
 #include <cmath>
-#include <stdint.h>
+#include <cstdint>
+#include <cinttypes>
 
 #define __STDC_FORMAT_MACROS
-
-#include <inttypes.h>
-
 #if defined(_MSC_VER)
     #include <io.h>
 #else

@@ -17,7 +17,7 @@ class FCM
 public:
     high_resolution_clock::time_point startTime;    // Start time
     u16            n_threads;          // # threads
-    u16            n_models;           // # models
+    u8             n_models;           // # models
     bool           decompFlag;         // Decompress flag
     char           compMode;           // Compression mode (table / hash table)
     double         gamma;              // Gamma (for mixture of FCMs)

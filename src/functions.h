@@ -37,9 +37,9 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
     bool m_flag = false;                // Model(s) parameters entered
     bool r_flag = false;                // Reference(s) file name entered
     bool t_flag = false;                // Target(s) file name entered
-    string strModelsParameters = "";    // Argument of option 'm'
-    string refFilesNames       = "";    // Argument of option 'r'
-    string tarFilesNames       = "";    // Argument of option 't'
+    string strModelsParameters;    // Argument of option 'm'
+    string refFilesNames;    // Argument of option 'r'
+    string tarFilesNames;    // Argument of option 't'
     
     int c;                              // Deal with getopt_long()
     int option_index;                   // Option index stored by getopt_long()
@@ -48,18 +48,18 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
     
     static struct option long_options[] =
     {
-        {"help",      no_argument,       &h_flag, (int) 'h'}, // Help
-        {"verbose",   no_argument,       &v_flag, (int) 'v'}, // Verbose
-        {"decompress",no_argument,       &d_flag, (int) 'd'}, // Decompress
-        {"model",     required_argument, 0,             'm'}, // Model(s)
-        {"reference", required_argument, 0,             'r'}, // Ref. file(s)
-        {"target",    required_argument, 0,             't'}, // Tar. file(s)
-        {"nthreads",  required_argument, 0,             'n'}, // # threads >= 1
-        {"gamma",     required_argument, 0,             'g'}, // 0 <= gamma < 1
-        {0,           0,                 0,               0}
+        {"help",       no_argument,       &h_flag, 'h'},    // Help
+        {"verbose",    no_argument,       &v_flag, 'v'},    // Verbose
+        {"decompress", no_argument,       &d_flag, 'd'},    // Decompress
+        {"model",      required_argument, nullptr, 'm'},    // Model(s)
+        {"reference",  required_argument, nullptr, 'r'},    // Ref. file(s)
+        {"target",     required_argument, nullptr, 't'},    // Tar. file(s)
+        {"nthreads",   required_argument, nullptr, 'n'},    // # threads >= 1
+        {"gamma",      required_argument, nullptr, 'g'},    // 0 <= gamma < 1
+        {nullptr,      0,                 nullptr,  0}
     };
     
-    while (1)
+    while (true)
     {
         option_index = 0;   // getopt_long() stores the option index here.
         
@@ -72,10 +72,8 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             case 0:
                 // If this option set a flag, do nothing else now.
-                if (long_options[ option_index ].flag != 0) break;
-                
-                cout << "option '" << long_options[ option_index ].name
-                     << "'\n";
+                if (long_options[option_index].flag)  break;
+                cout << "option '" << long_options[option_index].name << "'\n";
                 if (optarg) cout << " with arg " << optarg << '\n';
                 break;
             
@@ -137,11 +135,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             if (*it == ',')
             {
-                mixModel.tarAddr.push_back( string(begIter, it) );
+                mixModel.tarAddr.emplace_back( string(begIter, it) );
                 begIter = it + 1;
             }
         }
-        mixModel.tarAddr.push_back( string(begIter, endIter) );     // last tar. name
+        mixModel.tarAddr.emplace_back( string(begIter, endIter) );     // last tar. name
         
         /*  Slower
         u8 tarIndex = (u8) tarFilesNames.size();
@@ -170,11 +168,11 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             if (*it == ',')
             {
-                mixModel.refAddr.push_back( string(begIter, it) );
+                mixModel.refAddr.emplace_back( string(begIter, it) );
                 begIter = it + 1;
             }
         }
-        mixModel.refAddr.push_back(string(begIter, endIter));     // Last ref. name
+        mixModel.refAddr.emplace_back(string(begIter, endIter));     // Last ref. name
         
         /*  Slower
         u8 refIndex = (u8) refFilesNames.size();
@@ -204,15 +202,15 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
         {
             if (*it == ':')
             {
-                vecModelsParams.push_back( string(begIter, it) );
+                vecModelsParams.emplace_back( string(begIter, it) );
                 begIter = it + 1;
             }
         }
         // Last model parameters
-        vecModelsParams.push_back( string(begIter, endIter) );
+        vecModelsParams.emplace_back( string(begIter, endIter) );
                                                                
         vector< string > modelParams;               // Params for each model
-        u8 n_models = (u8) vecModelsParams.size();  // Number of models
+        auto n_models = (u8) vecModelsParams.size();  // Number of models
         mixModel.n_models = n_models;             // Set number of models
                                                  cout<<mixModel.n_models;
         for (u8 n = n_models; n--;)
@@ -226,12 +224,12 @@ void commandLineParser (int argc, char **argv, FCM &mixModel)
             {
                 if (*it == ',')
                 {
-                    modelParams.push_back( string(begIter, it) );
+                    modelParams.emplace_back( string(begIter, it) );
                     begIter = it + 1;
                 }
             }
             // Parameters for the last model
-            modelParams.push_back( string(begIter, endIter) );
+            modelParams.emplace_back( string(begIter, endIter) );
                                                                
             // Set model(s) parameters
             mixModel.invRepeats.push_back((bool) stoi(modelParams[0]));
@@ -286,7 +284,7 @@ bool areFilesEqual (const string &first, const string &second)
     }
     
     // Keep each line as well as all of the first and second files
-    string firstLine, secondLine, firstStr = "", secondStr = "";
+    string firstLine, secondLine, firstStr, secondStr;
     
     // Remove '\n' from first and second files and save them in a string
     while ( getline(firstFile, firstLine) )

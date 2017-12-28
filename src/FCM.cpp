@@ -8,7 +8,7 @@
 #include <iomanip>      // setw, setprecision
 #include <cstring>      // memset, memcpy
 #include <cmath>        // std::round
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 #include "FCM.h"
@@ -55,7 +55,7 @@ void  FCM::initHashTables () { hashTables = new htable_t[n_models]; }
 void FCM::buildModel (const vector<string> &refsNames,
                       bool invRepeat, u8 ctxDepth, u16 modelIndex)
 {
-    u8 refsNo = (u8) refsNames.size();    // # references
+    auto refsNo = (u8) refsNames.size();    // # references
     
     // Check if reference(s) file(s) cannot be opened, or are empty
     ifstream refsIn[refsNo];
@@ -87,7 +87,7 @@ void FCM::buildModel (const vector<string> &refsNames,
         case 't':
         {
             u64 tableSize = maxPlaceValue * ALPH_SUM_SIZE;
-            u64 *table = new u64[tableSize];
+            auto table = new u64[tableSize];
 //            u16 *table = new u16[ tableSize ];
             memset(table, 0, sizeof(table[0]) * tableSize);  // 0 init. table
 ///            fill_n(table, tableSize, 0);
@@ -102,10 +102,9 @@ void FCM::buildModel (const vector<string> &refsNames,
                 while (getline(refsIn[ i ], refLine))
                 {
                     // Fill table by no. occurrences of symbols A,C,N,G,T
-                    for (string::iterator lineIt = refLine.begin();
-                         lineIt != refLine.end(); ++lineIt)
+                    for (char const& refLineChar : refLine)
                     {
-                        currSymInt = symCharToInt(*lineIt);
+                        currSymInt = symCharToInt(refLineChar);
                         
                         if (invRepeat)    // Considering IRs to update table
                         {
@@ -170,7 +169,7 @@ void FCM::buildModel (const vector<string> &refsNames,
             htable_t hashTable;
 //            array< u16, ALPH_SIZE > hTRowArray;
 //            u32 sumRow;
-            array< u64, ALPH_SIZE > hTRowArray;
+            array<u64, ALPH_SIZE> hTRowArray;
             u64 sumRow;
             
             for (u8 i = refsNo; i--;)
@@ -179,13 +178,12 @@ void FCM::buildModel (const vector<string> &refsNames,
                 context = 0;
                 invRepContext = maxPlaceValue - 1;
                 
-                while (getline(refsIn[ i ], refLine))
+                while (getline(refsIn[i], refLine))
                 {
                     // Fill hash table by no. occurrences of syms A,C,N,G,T
-                    for (string::iterator lineIt = refLine.begin();
-                         lineIt != refLine.end(); ++lineIt)
+                    for (char const& refLineChar : refLine)
                     {
-                        currSymInt = symCharToInt(*lineIt);
+                        currSymInt = symCharToInt(refLineChar);
                         
                         // Considering IRs to update hash table
                         if (invRepeat)
@@ -376,13 +374,12 @@ void FCM::compress (const string &tarName)
             while (getline(tarIn, tarLine))
             {
                 // Table includes the no. occurrences of symbols A,C,N,G,T
-                for (string::iterator lineIt = tarLine.begin();
-                     lineIt != tarLine.end(); ++lineIt)
+                for (char const& tarLineChar : tarLine)
                 {
 //                    fill_n(freqsDouble, ALPH_SIZE, 0);  // Reset array of freqs
 
                     // Integer version of the current symbol
-                    currSymInt = symCharToInt(*lineIt);
+                    currSymInt = symCharToInt(tarLineChar);
 
                     probability = 0;
 //                    sumOfWeights = 0;
@@ -458,13 +455,12 @@ void FCM::compress (const string &tarName)
             while (getline(tarIn, tarLine))
             {
                 // Hash table includes no. occurrences of symbols A,C,N,G,T
-                for (string::iterator lineIt = tarLine.begin();
-                     lineIt != tarLine.end(); ++lineIt)
+                for (char const& tarLineChar : tarLine)
                 {
 //                    fill_n(freqsDouble, ALPH_SIZE, 0); // reset array of freqs
                     
                     // Integer version of the current symbol
-                    currSymInt = symCharToInt(*lineIt);
+                        currSymInt = symCharToInt(tarLineChar);
                     
                     probability = 0;
 //                    sumOfWeights = 0;
@@ -541,7 +537,7 @@ void FCM::compress (const string &tarName)
     averageEntropy = (double) (-1) * sumOfEntropies / symsNo;
 
     // Print reference and target file names
-    u8 refsAdressesSize = (u8) refAddr.size();
+    auto refsAdressesSize = (u8) refAddr.size();
     size_t lastSlash_Ref[refsAdressesSize];
     string refNamesPure[refsAdressesSize];
     for (u8 i = refsAdressesSize; i--;)
@@ -602,7 +598,7 @@ void FCM::extractHeader (const string &tarName)
     this->gamma =             // Gamma
             round((double) arithObj.ReadNBits(32, Reader)/65536 * 100) / 100;
 
-    u64 no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
+    auto no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
     this->n_models = (u8) no_models;
     for (u8 n = 0; n < no_models; ++n)
     {
@@ -610,7 +606,7 @@ void FCM::extractHeader (const string &tarName)
         this->invRepeats.push_back((u8)   arithObj.ReadNBits(16, Reader));
         this->invRepeats.push_back((u16)  arithObj.ReadNBits(16, Reader));
     }
-    char compMode = (char) arithObj.ReadNBits(16, Reader);  // Compression mode
+    auto compMode = (char) arithObj.ReadNBits(16, Reader);  // Compression mode
     this->compMode = compMode;
     // Initialize vector of tables/hash tables
     compMode == 'h' ? this->initHashTables() : this->initTables();
@@ -644,14 +640,14 @@ void FCM::decompress (const string &tarName)
     mut.unlock();//======================================================
     
     i32 idxOut = 0;
-    char *outBuffer = (char*) calloc(BUFFER_SIZE, sizeof(uint8_t));
+    auto outBuffer = (char*) calloc(BUFFER_SIZE, sizeof(uint8_t));
 
     arithObj.startinputtingbits();        // Start arithmetic decoding process
     arithObj.start_decode(Reader);
     
     // Extract header information
     arithObj.ReadNBits(26, Reader);     // Watermark
-    u64 symsNo = (u64) arithObj.ReadNBits(46, Reader);  // Number of symbols
+    auto symsNo = (u64) arithObj.ReadNBits(46, Reader);  // Number of symbols
     arithObj.ReadNBits(32, Reader);     // Gamma
     arithObj.ReadNBits(16, Reader);                     // Number of models
     u8 no_models = this->n_models;
