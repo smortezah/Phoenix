@@ -67,7 +67,7 @@ OPTIONS
 
 
 ## CITE
-Please cite the following papers, if you use *Phoenix*:
+Please cite the following papers, if you use Phoenix:
 * M. Hosseini, D. Pratas and A.J. Pinho, "On the role of inverted repeats in DNA sequence similarity," *11'th International Conference on Practical Applications of Computational Biology & Bioinformatics (PACBB)*, Springer, June 2017.
 
 
@@ -76,5 +76,5 @@ Please let us know if there is any [issues](https://github.com/smortezah/Phoenix
 
 
 ## LICENSE
-cryfa is under GPL v3 license. For more information, click 
+Phoenix is under GPL v3 license. For more information, click 
 [here](http://www.gnu.org/licenses/gpl-3.0.html).
