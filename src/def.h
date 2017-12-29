@@ -1,11 +1,13 @@
 #ifndef PHOENIX_DEF_H
 #define PHOENIX_DEF_H
 
+#include <vector>
 #include <unordered_map>    // Hash table
 
 using std::cout;
 using std::string;
 using std::unordered_map;
+using std::vector;
 using std::array;
 
 /*******************************************************************************
@@ -72,7 +74,9 @@ struct InArgs
     static bool   DECOMP_FLAG;        // Decompression flag
     static u8     N_THREADS;          // # threads
     static u8     N_MODELS;           // # models
-    static double   GAMMA;        // Gamma (for mixture of FCMs)
+    static double GAMMA;        // Gamma (for mixture of FCMs)
+    static vector<bool>   INV_REPS; // Inverted repeat(s)
+    static vector<u8>     CTX_DEPTHS; // Context depthe(s) (SIZE <= 255)
 //    static string IN_FILE_NAME;       /**< @brief Input file name */
 //    static string KEY_FILE_NAME;      /**< @brief Password file name */
 };

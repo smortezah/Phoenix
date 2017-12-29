@@ -20,10 +20,9 @@ public:
     double         gamma;              // Gamma (for mixture of FCMs)
     
     
+    
     high_resolution_clock::time_point startTime;    // Start time
     char           compMode;           // Compression mode (table / hash table)
-    vector<bool>   invRepeats;         // Inverted repeat(s)
-    vector<u8>     ctxDepths;          // Context depthe(s) (SIZE <= 255)
     vector<u16>    alphaDens;          // Alpha denominator(s)
     vector<string> tarAddr;            // Target files addresses
     vector<string> refAddr;            // Reference files addresses

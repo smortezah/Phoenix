@@ -232,15 +232,15 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             modelParams.emplace_back( string(begIter, endIter) );
                                                                
             // Set model(s) parameters
-            mixModel.invRepeats.push_back((bool) stoi(modelParams[0]));
-            mixModel.ctxDepths.push_back((u8)    stoi(modelParams[1]));
+            InArgs::INV_REPS.push_back((bool) stoi(modelParams[0]));
+            InArgs::CTX_DEPTHS.push_back((u8)    stoi(modelParams[1]));
             mixModel.alphaDens.push_back((u16)   stoi(modelParams[2]));
         }
         
         // Set compression mode: 't'=table, 'h'=hash table
         // 5^k_1 + 5^k_2 + ... > 5^12 ==> mode: hash table
         u64 cmpModeSum = 0;
-        for(u8 k : mixModel.ctxDepths) cmpModeSum = cmpModeSum + POWER5[k];
+        for(u8 k : InArgs::CTX_DEPTHS) cmpModeSum = cmpModeSum + POWER5[k];
         const char compressionMode = (cmpModeSum > POWER5[TABLE_MAX_CTX])
                                      ? 'h' : 't';
         mixModel.compMode = compressionMode;

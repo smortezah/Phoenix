@@ -31,6 +31,8 @@ bool   InArgs::DECOMP_FLAG = false;
 u8     InArgs::N_THREADS   = DEFAULT_N_THR;
 u8     InArgs::N_MODELS    = 1;
 double InArgs::GAMMA       = DEFAULT_GAMMA;
+vector<bool>   InArgs::INV_REPS;
+vector<u8>     InArgs::CTX_DEPTHS;
 //string InArgs::IN_FILE_NAME    = "";
 //string InArgs::KEY_FILE_NAME   = "";
 
@@ -60,8 +62,8 @@ int main (int argc, char *argv[])
         //TODO: aya jaygozini vase sharte "i+j < n_models" hast?
         for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
             arrThread[j] = thread( &FCM::buildModel, &mixModel,
-                                   mixModel.refAddr, mixModel.invRepeats[i+j],
-                                   mixModel.ctxDepths[i+j], i+j );
+                                   mixModel.refAddr, InArgs::INV_REPS[i+j],
+                                   InArgs::CTX_DEPTHS[i+j], i+j );
         for (u16 j = 0; j < arrThrSize && i+j < n_models; ++j)
             if (arrThread[j].joinable())
                 arrThread[j].join();
@@ -120,8 +122,8 @@ int main (int argc, char *argv[])
             for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
                 arrThread[ j ] = thread( &FCM::buildModel, &decModel,
                                          decModel.refAddr,
-                                         decModel.invRepeats[i+j],
-                                         decModel.ctxDepths[i+j], i + j );
+                                         InArgs::INV_REPS[i+j],
+                                         InArgs::CTX_DEPTHS[i+j], i + j );
             for (u16 j = 0; j < arrThrSize && i + j < n_models; ++j)
                 if (arrThread[j].joinable())
                     arrThread[j].join();

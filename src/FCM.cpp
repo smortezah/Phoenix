@@ -296,7 +296,7 @@ void FCM::compress (string const& tarName)
     mut.unlock();//======================================================
     
     u64 maxPlaceValue[N_MODELS];
-    for (u16 i = N_MODELS; i--;) maxPlaceValue[ i ] = POWER5[ ctxDepths[i] ];
+    for (u16 i = N_MODELS; i--;) maxPlaceValue[i] = POWER5[CTX_DEPTHS[i]];
     
     // Context(s) (integer) sliding through the dataset
     u64    tarContext[N_MODELS];   fill_n(tarContext, N_MODELS, 0);
@@ -352,8 +352,8 @@ void FCM::compress (string const& tarName)
 //    arithObj.WriteNBits(N_MODELS,  16, Writer);   // Number of models
 //    for (u16 n = 0; n < N_MODELS; ++n)
 //    {
-//        arithObj.WriteNBits((u8) invRepeats[n], 1,  Writer);    // IRs
-//        arithObj.WriteNBits(ctxDepths[n],       16, Writer);    // Ctx depths
+//        arithObj.WriteNBits((u8) INV_REPS[n], 1,  Writer);    // IRs
+//        arithObj.WriteNBits(CTX_DEPTHS[n],       16, Writer);    // Ctx depths
 //        arithObj.WriteNBits(alphaDens[n],       16, Writer);    // Alpha denoms
 //    }
 //    arithObj.WriteNBits((u64) compMode,         16, Writer);    // Comp. mode
@@ -555,8 +555,8 @@ void FCM::compress (string const& tarName)
          //       << std::fixed << setprecision(5) << averageEntropy << '\t'
          << std::fixed << setprecision(4) << averageEntropy / LOG2_ALPH_SIZE
          << '\t' // NRC
-         << invRepeats[0]  << '\t'
-         << (int) ctxDepths[0] << '\t'
+         << INV_REPS[0]  << '\t'
+         << (int) CTX_DEPTHS[0] << '\t'
          << std::fixed << setprecision(4) << alpha[0] << '\t'
          << std::fixed << setprecision(3) << elapsed.count()
          << '\n';
@@ -592,14 +592,13 @@ void FCM::extractHeader (string const& tarName)
     arithObj.ReadNBits(46, Reader);     // File size
     this->gamma =             // Gamma
             round((double) arithObj.ReadNBits(32, Reader)/65536 * 100) / 100;
-
     auto no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
     InArgs::N_MODELS = (u8) no_models;
     for (u8 n = 0; n < no_models; ++n)
     {
-        this->invRepeats.push_back((bool) arithObj.ReadNBits(1,  Reader));
-        this->invRepeats.push_back((u8)   arithObj.ReadNBits(16, Reader));
-        this->invRepeats.push_back((u16)  arithObj.ReadNBits(16, Reader));
+        InArgs::INV_REPS.push_back((bool) arithObj.ReadNBits(1,  Reader));
+        InArgs::INV_REPS.push_back((u8)   arithObj.ReadNBits(16, Reader));
+        InArgs::INV_REPS.push_back((u16)  arithObj.ReadNBits(16, Reader));
     }
     auto compMode = (char) arithObj.ReadNBits(16, Reader);  // Compression mode
     this->compMode = compMode;
@@ -663,7 +662,7 @@ void FCM::decompress (string const& tarName)
     }
     
     u64 maxPlaceValue[no_models];
-    for (u8 i = no_models; i--;)  maxPlaceValue[ i ] = POWER5[ ctxDepths[i] ];
+    for (u8 i = no_models; i--;)  maxPlaceValue[i] = POWER5[CTX_DEPTHS[i]];
     
     // Context(s) (integer) sliding through the dataset
     u64    tarContext[no_models];  fill_n(tarContext, no_models, 0);
