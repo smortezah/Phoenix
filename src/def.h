@@ -37,29 +37,29 @@ typedef long int            i64;
 //typedef unordered_map< u64 , array< u16, ALPH_SIZE > > htable_t;
 
 constexpr u8 ALPH_SIZE = 5;           // Alphabet {A, C, N, G, T} size
-typedef unordered_map<u64, array<u64, ALPH_SIZE>> htable_t;
+typedef unordered_map<u64, array<u64,ALPH_SIZE>> htable_t;
 
 
 /*******************************************************************************
     Constants
 *******************************************************************************/
-constexpr double LOG2_ALPH_SIZE  = 2.3219281;   // log2 of 5 (ALPHABET_SIZE)
-constexpr u8     ALPH_SUM_SIZE   = 6;           // ALPHABET_SIZE+1: 1 more col. for 'sum'
-constexpr u8     TABLE_MAX_CTX   = 12;         // Max context depth for building table
+constexpr double LOG2_ALPH_SIZE  = 2.3219281;  // log2 of 5 (ALPHABET_SIZE)
+constexpr u8     ALPH_SUM_SIZE   = 6;  // ALPHABET_SIZE+1: 1 more col. for 'sum'
+constexpr u8     TABLE_MAX_CTX   = 12;         // Max ctx depth to build table
 constexpr u8     IR_MAGIC_NUM    = 4;          // For IR calculation
-constexpr u8     DEFAULT_N_THR   = 2;           // Default number of threads
+constexpr u8     DEFAULT_N_THR   = 2;          // Default number of threads
 constexpr u8     N_FREE_THREADS  = 1;
-constexpr double DEFAULT_GAMMA   = 0.95;       // Default gamma (mixture of FCMs)
-const     string COMP_FILETYPE   = ".co";       // Compressed file type
-const     string DECOMP_FILETYPE = ".de" ;      // Decompressed file type
-constexpr u64    WATERMARK       = 20180101;   // Used in compression/decompression
-constexpr u64    BUFFER_SIZE     = 262144;      // Used in decompression
-constexpr u64    DOUBLE_TO_INT   = 65535;       // For converting double to integer
-//constexpr u64 MAX_INT            = 2147483647; // Maximum possible integer = 2^31-1
-constexpr u64    MAX_INT         = 1073741823;  // Maximum possible integer = 2^30-1
+constexpr double DEFAULT_GAMMA   = 0.95;       // Default gamma (mix of FCMs)
+const     string COMP_FILETYPE   = ".co";      // Compressed file type
+const     string DECOMP_FILETYPE = ".de" ;     // Decompressed file type
+constexpr u64    WATERMARK       = 20180101;   // Used in comp/decomp
+constexpr u64    BUFFER_SIZE     = 262144;     // Used in decomp
+constexpr u64    DOUBLE_TO_INT   = 65535;      // To convert double to integer
+//constexpr u64    MAX_INT         = 2147483647; // Max possible int = 2^31-1
+constexpr u64    MAX_INT         = 1073741823; // Max possible int = 2^30-1
 // Max no. of bases allowed for sum col. of table = (MAX_INT-1)/65535 = 2^15
 constexpr u64    MAX_N_BASE_SUM  = 16384;
-//constexpr u64 MAX_N_BASE_SUM     = 32768;
+//constexpr u64    MAX_N_BASE_SUM  = 32768;
 // Max no. of bases allowed for each cell = MAX_N_BASE_SUM / 5
 constexpr u64    MAX_N_BASE      = 3276;
 //constexpr u64    MAX_N_BASE      = 6553;
@@ -70,15 +70,16 @@ constexpr u64    MAX_N_BASE      = 3276;
 *******************************************************************************/
 struct InArgs
 {
-    static bool   VERBOSE;            // Verbose mode
-    static bool   DECOMP_FLAG;        // Decompression flag
-    static u8     N_THREADS;          // # threads
-    static u8     N_MODELS;           // # models
-    static double GAMMA;        // Gamma (for mixture of FCMs)
-    static vector<bool>   INV_REPS; // Inverted repeat(s)
-    static vector<u8>     CTX_DEPTHS; // Context depthe(s) (SIZE <= 255)
-//    static string IN_FILE_NAME;       /**< @brief Input file name */
-//    static string KEY_FILE_NAME;      /**< @brief Password file name */
+    static bool           VERBOSE;       // Verbose mode
+    static bool           DECOMP_FLAG;   // Decompression flag
+    static u8             N_THREADS;     // No. threads
+    static u8             N_MODELS;      // No. models
+    static double         GAMMA;         // Gamma (for mixture of FCMs)
+    static vector<bool>   INV_REPS;      // Inverted repeats
+    static vector<u8>     CTX_DEPTHS;    // Context depthes (SIZE <= 255)
+    static vector<u16>    ALPHA_DENS;    // Alpha denominators
+    static vector<string> TAR_ADDRS;     // Target files addresses
+    static vector<string> REF_ADDRS;     // Reference files addresses
 };
 
 

@@ -211,11 +211,11 @@ class ArithCoder : public InArgs
 {
 public:
     ArithCoder () = default;                                      // Constructor
-
-    void GetInterval         (int*, int*, int*, u8);
-    u8   GetSymbol           (int*, int*, int*, int, u8);
-    void WriteNBits          (u64,  int,  FILE*);    // Write N bits to a file
-    int  ReadNBits           (u32,  FILE*);          // Read N bits from a file
+	
+	void getInterval         (int*, int*, int*, u8);
+    u8   getSymbol           (int*, int*, int*, int, u8);
+    void writeNBits          (u64,  int,  FILE*);     // Write N bits to a file
+    int  readNBits           (u32,  FILE*);           // Read N bits from a file
     void AESym               (u8,   int*, int,  FILE*);  // Arithmetic encoding
     u8   ADSym               (u8,   int*, int,  FILE*);  // Arithmetic decoding
     void start_encode        ();
@@ -234,40 +234,40 @@ public:
 //    int  binary_arithmetic_decode(freq_value, freq_value, FILE*);
 
 private:
-    inline void OUTPUT_BIT           (int, FILE*);
-    inline void ADD_NEXT_INPUT_BIT   (code_value&, int, FILE*);
-    inline void ORIG_BIT_PLUS_FOLLOW (int, FILE*);
-    inline void BIT_PLUS_FOLLOW      (int, FILE*);
-    inline void ENCODE_RENORMALISE   (FILE*);
-    inline void DECODE_RENORMALISE   (FILE*);
+    inline void outputBit         (int, FILE*);
+    inline void addNextInputBit   (code_value&, int, FILE*);
+    inline void origBitPlusFollow (int, FILE*);
+    inline void bitPlusFollow     (int, FILE*);
+    inline void encodeRenormalise (FILE*);
+    inline void decodeRenormalise (FILE*);
 };
 
 
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithCoder::GetInterval (int *low, int *high, int *count, u8 symbol)
+void ArithCoder::getInterval (int *low, int *high, int *count, u8 symbol)
 {
-	*low = 0;	for (u8 n = 0; n < symbol; n++) *low += count[ n ];
-	*high = *low + count[ symbol ];
+	*low = 0;	for (u8 n=0; n<symbol; n++) *low += count[n];
+	*high = *low + count[symbol];
 }
 
 
 /*******************************************************************************
 
 *******************************************************************************/
-u8 ArithCoder::GetSymbol (int *low, int *high, int *count,
-						   int target, u8 nSymbols)
+u8 ArithCoder::getSymbol (int *low, int *high, int *count,
+						  int target, u8 nSymbols)
 {
 	u8 n;
 	
 	*low = 0;
-	for (n = 0; n < nSymbols; n++)
+	for (n=0; n<nSymbols; n++)
 	{
-		if (*low + count[ n ] > target)	break;
-		*low += count[ n ];
+		if (*low+count[n] > target)    break;
+		*low += count[n];
 	}
-	*high = *low + count[ n ];
+	*high = *low + count[n];
 
 	return n;
 }
@@ -276,7 +276,7 @@ u8 ArithCoder::GetSymbol (int *low, int *high, int *count,
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithCoder::WriteNBits (u64 bits, int nBits, FILE *oFp)
+void ArithCoder::writeNBits (u64 bits, int nBits, FILE *oFp)
 {
 	while (nBits--)
 	{
@@ -289,16 +289,16 @@ void ArithCoder::WriteNBits (u64 bits, int nBits, FILE *oFp)
 /*******************************************************************************
 
 *******************************************************************************/
-int ArithCoder::ReadNBits (u32 nBits, FILE *iFp)
+int ArithCoder::readNBits (u32 nBits, FILE *iFp)
 {
 	int bits = 0;
-	int target, low, high, count[2] = {1, 1};
+	int target, low, high, count[2]={1, 1};
 
 	while (nBits--)
 	{
 		bits <<= 1;
 		target = arithmetic_decode_target(2);
-		bits |= GetSymbol(&low, &high, count, target, 2);
+		bits |= getSymbol(&low, &high, count, target, 2);
 		arithmetic_decode(low, high, 2, iFp);
 	}
 
@@ -313,7 +313,7 @@ void ArithCoder::AESym (u8 symbol, int *counters, int totalCount, FILE *oFp)
 {
 	int low, high;
 
-	GetInterval(&low, &high, counters, symbol);
+	getInterval(&low, &high, counters, symbol);
 	arithmetic_encode(low, high, totalCount, oFp);
 }
 
@@ -325,7 +325,7 @@ u8 ArithCoder::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
 {
 	int low, high;
 
-	u8 symbol = GetSymbol(&low, &high, counters,
+	u8 symbol = getSymbol(&low, &high, counters,
 						  arithmetic_decode_target(totalCount), nSymbols);
 	arithmetic_decode(low, high, totalCount, iFp);
 
@@ -337,7 +337,7 @@ u8 ArithCoder::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
     Encode a symbol given its low, high and total frequencies
 *******************************************************************************/
 void ArithCoder::arithmetic_encode (freq_value low, freq_value high,
-									 freq_value total, FILE *s)
+									freq_value total, FILE *s)
 {
 	/*
     The following pseudocode is a concise (but slow due to arithmetic
@@ -366,7 +366,7 @@ void ArithCoder::arithmetic_encode (freq_value low, freq_value high,
        if (high < total) R = (high-low) * (R/total);
        else				 R = R - low * (R/total);
 
-       ENCODE_RENORMALISE;		// Expand code range and output bits
+       encodeRenormalise;		// Expand code range and output bits
 
 	   // EXTREMELY improbable
        if (bits_outstanding > MAX_BITS_OUTSTANDING)	abort();
@@ -377,14 +377,14 @@ void ArithCoder::arithmetic_encode (freq_value low, freq_value high,
 	{
 		div_value out_r;
 		out_r = out_R/total;		// Calc range:freq ratio
-		temp = out_r*low;			// Calc low increment
+		temp  = out_r*low;			// Calc low increment
 		out_L += temp;				// Increase L
-		if (high < total)	out_R = out_r*(high-low);  // Restrict R
-		else				out_R -= temp;      // If at end of freq range
+		if (high<total)    out_R = out_r*(high-low);  // Restrict R
+		else               out_R -= temp;             // If at end of freq range
 		/* Give symbol excess code range  */
 	}
 
-    ENCODE_RENORMALISE(s);
+    encodeRenormalise(s);
 
 	if (out_bits_outstanding > MAX_BITS_OUTSTANDING)
 	{
@@ -430,10 +430,10 @@ freq_value ArithCoder::arithmetic_decode_target (freq_value total)
 {
 	freq_value target;
 
-	in_r = in_R/total;
+	in_r   = in_R/total;
 	target = (in_D)/in_r;
 
-	return (target >= total ? total-1 : target);
+	return (target>=total ? total-1 : target);
 }
 
 
@@ -449,20 +449,20 @@ freq_value ArithCoder::arithmetic_decode_target (freq_value total)
     if (high < total) R = (high-low) * (R/total);   // Adjust range
     else			  R -= low * (R/total);    // End of range is a special case
  
-    DECODE_RENORMALISE;      // Expand code range and input bits
+    decodeRenormalise;      // Expand code range and input bits
 *******************************************************************************/
 void ArithCoder::arithmetic_decode (freq_value low, freq_value high,
-									 freq_value total, FILE *s)
+									freq_value total, FILE *s)
 {
 	code_value temp;
 
-	/// Assume r has been set by decode_target
+	// Assume r has been set by decode_target
 	temp = in_r*low;
 	in_D -= temp;
-	if (high < total)   in_R = in_r*(high-low);
-	else                in_R -= temp;
+	if (high<total)    in_R = in_r*(high-low);
+	else               in_R -= temp;
 
-    DECODE_RENORMALISE(s);
+    decodeRenormalise(s);
 }
 
 
@@ -471,7 +471,7 @@ void ArithCoder::arithmetic_decode (freq_value low, freq_value high,
 *******************************************************************************/
 void ArithCoder::start_encode ()
 {
-	/// Set initial coding range to [0,Half)
+	// Set initial coding range to [0,Half)
 	out_L = 0;
 	out_R = Half;
 	out_bits_outstanding = 0;
@@ -492,9 +492,9 @@ void ArithCoder::finish_encode (FILE *s)
 	nbits = B_bits;
 	bits  = out_L;
 
-	/// Output the nbits integer bits
-	for (int i = 1; i <= nbits; i++)
-		BIT_PLUS_FOLLOW(((bits >> (nbits - i)) & 1), s);
+	// Output the nbits integer bits
+	for (int i=1; i<=nbits; i++)
+		bitPlusFollow(((bits>>(nbits-i)) & 1), s);
 }
 
 
@@ -512,12 +512,12 @@ void ArithCoder::finish_encode (FILE *s)
 *******************************************************************************/
 void ArithCoder::start_decode (FILE *s)
 {
-    in_D = 0;		/// Initial offset in range is 0
-	in_R = Half;	/// Range = Half
+    in_D = 0;		// Initial offset in range is 0
+	in_R = Half;	// Range = Half
 
-	for (int i = 0; i<B_bits; i++)  ADD_NEXT_INPUT_BIT(in_D, 0, s);   /// Fill D
+	for (int i=0; i<B_bits; i++)  addNextInputBit(in_D, 0, s);   // Fill D
 
-	if (in_D >= Half) {cerr<<"Corrupt input file (start_decode())\n"; exit(1);}
+	if (in_D>=Half) { cerr<<"Corrupt input file (start_decode())\n";  exit(1); }
 }
 
 
@@ -528,7 +528,7 @@ void ArithCoder::start_decode (FILE *s)
 *******************************************************************************/
 void ArithCoder::finish_decode ()
 {
-	/// No action
+	// No action
 }
 
 
@@ -537,7 +537,7 @@ void ArithCoder::finish_decode ()
 *******************************************************************************/
 void ArithCoder::startoutputtingbits ()
 {
-	_out_buffer = 0;
+	_out_buffer     = 0;
 	_out_bits_to_go = BYTE_SIZE;
 }
 
@@ -568,14 +568,14 @@ void ArithCoder::doneoutputtingbits (FILE *s)
 *******************************************************************************/
 void ArithCoder::doneinputtingbits ()
 {
-	_in_bit_ptr = 0;	/// "Wipe" buffer (in case more input follows)
+	_in_bit_ptr = 0;	// "Wipe" buffer (in case more input follows)
 }
 
 
 /*******************************************************************************
     Outputs bit 'b' to stdout. Builds up a buffer, writing a byte at a time.
 *******************************************************************************/
-inline void ArithCoder::OUTPUT_BIT (int b, FILE *s)
+inline void ArithCoder::outputBit (int b, FILE *s)
 {
     do
     {
@@ -583,11 +583,11 @@ inline void ArithCoder::OUTPUT_BIT (int b, FILE *s)
         if (b)  _out_buffer |= 1;
         
         _out_bits_to_go--;
-        if (_out_bits_to_go == 0)
+        if (!_out_bits_to_go)
         {
             OUTPUT_BYTE(_out_buffer, s);
             _out_bits_to_go = BYTE_SIZE;
-            _out_buffer = 0;
+            _out_buffer     = 0;
         }
     } while (0);
 }
@@ -607,18 +607,18 @@ inline void ArithCoder::OUTPUT_BIT (int b, FILE *s)
     point to the next bit that is to be read. When it is zero, the next byte
     is read, and it is reset to point to the msb.
 *******************************************************************************/
-inline void ArithCoder::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
-                                             FILE *s)
+inline void ArithCoder::addNextInputBit (code_value &v, int garbage_bits,
+                                         FILE *s)
 {
     do
     {
-        if (_in_bit_ptr == 0)
+        if (!_in_bit_ptr)
         {
             _in_buffer = getc(s);
             if (_in_buffer == EOF)
             {
                 _in_garbage++;
-                if ((_in_garbage - 1) * 8 >= garbage_bits)
+                if ((_in_garbage-1)*8 >= garbage_bits)
                 {
                     cerr << "Bad input file"
                             " - attempted read past end of file.\n";
@@ -627,7 +627,7 @@ inline void ArithCoder::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
             }
             else    _bytes_input++;
             
-            _in_bit_ptr = ( 1<<(BYTE_SIZE - 1) );
+            _in_bit_ptr = (1<<(BYTE_SIZE-1));
         }
         v = (v<<1);
         if (_in_buffer & _in_bit_ptr)   v++;
@@ -640,22 +640,22 @@ inline void ArithCoder::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
     Responsible for outputting the bit passed to it and an opposite number of
     bit equal to the value stored in bits_outstanding
 *******************************************************************************/
-inline void ArithCoder::ORIG_BIT_PLUS_FOLLOW (int b, FILE *s)
+inline void ArithCoder::origBitPlusFollow (int b, FILE *s)
 {
     do
     {
-        OUTPUT_BIT((b), s);
+        outputBit((b), s);
         while (out_bits_outstanding > 0)
         {
-            OUTPUT_BIT(!(b), s);
+            outputBit(!(b), s);
             out_bits_outstanding--;
         }
     } while (0);
 }
 //============================================================
-inline void ArithCoder::BIT_PLUS_FOLLOW (int b, FILE *s)
+inline void ArithCoder::bitPlusFollow (int b, FILE *s)
 {
-    ORIG_BIT_PLUS_FOLLOW(b, s);
+    origBitPlusFollow(b, s);
 }
 
 
@@ -664,7 +664,7 @@ inline void ArithCoder::BIT_PLUS_FOLLOW (int b, FILE *s)
     FRUGAL_BITS option, ignore first zero bit output (a redundant zero will
     otherwise be emitted every time the encoder is started)
 *******************************************************************************/
-inline void ArithCoder::ENCODE_RENORMALISE (FILE *s)
+inline void ArithCoder::encodeRenormalise (FILE *s)
 {
     do
     {
@@ -672,12 +672,12 @@ inline void ArithCoder::ENCODE_RENORMALISE (FILE *s)
         {
             if (out_L >= Half)
             {
-                BIT_PLUS_FOLLOW(1, s);
+                bitPlusFollow(1, s);
                 out_L -= Half;
             }
-            else if (out_L + out_R <= Half)
+            else if (out_L+out_R <= Half)
             {
-                BIT_PLUS_FOLLOW(0, s);
+                bitPlusFollow(0, s);
             }
             else
             {
@@ -696,14 +696,14 @@ inline void ArithCoder::ENCODE_RENORMALISE (FILE *s)
     encoder. FRUGAL_BITS option also keeps track of bitstream input so it can
     work out exactly how many disambiguating bits the encoder put out (1,2,3).
 *******************************************************************************/
-inline void ArithCoder::DECODE_RENORMALISE (FILE *s)
+inline void ArithCoder::decodeRenormalise (FILE *s)
 {
     do
     {
         while (in_R <= Quarter)
         {
             in_R <<= 1;
-            ADD_NEXT_INPUT_BIT(in_D, 0, s);
+            addNextInputBit(in_D, 0, s);
         }
     } while (0);
 }

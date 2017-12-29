@@ -37,9 +37,9 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
     bool m_flag = false;                // Model(s) parameters entered
     bool r_flag = false;                // Reference(s) file name entered
     bool t_flag = false;                // Target(s) file name entered
-    string strModelsParameters;    // Argument of option 'm'
-    string refFilesNames;    // Argument of option 'r'
-    string tarFilesNames;    // Argument of option 't'
+    string strModelsParameters;         // Argument of option 'm'
+    string refFilesNames;               // Argument of option 'r'
+    string tarFilesNames;               // Argument of option 't'
     
     int c;                              // Deal with getopt_long()
     int option_index;                   // Option index stored by getopt_long()
@@ -66,20 +66,20 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
         c = getopt_long(argc, argv, ":hAvdm:r:t:n:g:",
                         long_options, &option_index);
              
-        if (c == -1)    break;  // Detect the end of the options.
+        if (c==-1)    break;    // Detect the end of the options.
         
         switch (c)
         {
             case 0:
                 // If this option set a flag, do nothing else now.
-                if (long_options[option_index].flag)  break;
+                if (long_options[option_index].flag)    break;
                 cout << "option '" << long_options[option_index].name << "'\n";
                 if (optarg) cout << " with arg " << optarg << '\n';
                 break;
             
-            case 'h': h_flag = 1;   help();                               break;
-            case 'v': v_flag = 1;                                         break;
-            case 'd': d_flag = 1;   InArgs::DECOMP_FLAG = true;           break;
+            case 'h': h_flag=1;     help();                               break;
+            case 'v': v_flag=1;                                           break;
+            case 'd': d_flag=1;     InArgs::DECOMP_FLAG=true;             break;
             case 'm': m_flag=true;  strModelsParameters=(string) optarg;  break;
             case 'r': r_flag=true;  refFilesNames      =(string) optarg;  break;
             case 't': t_flag=true;  tarFilesNames      =(string) optarg;  break;
@@ -101,7 +101,7 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             case 'g':   // Needs a double argument
                 try
                 {
-                    double gamma = stod((string) optarg);
+                    double gamma  = stod((string) optarg);
                     InArgs::GAMMA =
                             (gamma>=0 && gamma<1) ? gamma : DEFAULT_GAMMA;
                 }
@@ -128,18 +128,18 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
     // Save target file(s) name(s)
     if (t_flag)
     {
-        string::iterator begIter = tarFilesNames.begin();
-        string::iterator endIter = tarFilesNames.end();
+        auto begIter=tarFilesNames.begin(), endIter=tarFilesNames.end();
         // All target files names but the last one
-        for (string::iterator it = begIter; it != endIter; ++it)
+        for (auto it=begIter; it!=endIter; ++it)
         {
             if (*it == ',')
             {
-                mixModel.tarAddr.emplace_back( string(begIter, it) );
+                InArgs::TAR_ADDRS.emplace_back(string(begIter,it));
                 begIter = it + 1;
             }
         }
-        mixModel.tarAddr.emplace_back( string(begIter, endIter) );     // last tar. name
+        // Last tar. name
+        InArgs::TAR_ADDRS.emplace_back(string(begIter,endIter));
         
         /*  Slower
         u8 tarIndex = (u8) tarFilesNames.size();
@@ -154,25 +154,26 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             }
         }
         // save last target file name
-        mixModel.tarAddr.push_back(tarFilesNames.substr(0, tarIndex));
+        InArgs::TAR_ADDRS.push_back(tarFilesNames.substr(0, tarIndex));
         */
     }
     
     // Save reference file(s) name(s)
     if (r_flag)
     {
-        string::iterator begIter = refFilesNames.begin();
-        string::iterator endIter = refFilesNames.end();
+        auto begIter=refFilesNames.begin(), endIter=refFilesNames.end();
+        
         // All reference files names but the last one
-        for (string::iterator it = begIter; it != endIter; ++it)
+        for (auto it=begIter; it!=endIter; ++it)
         {
             if (*it == ',')
             {
-                mixModel.refAddr.emplace_back( string(begIter, it) );
+                InArgs::REF_ADDRS.emplace_back(string(begIter,it));
                 begIter = it + 1;
             }
         }
-        mixModel.refAddr.emplace_back(string(begIter, endIter));     // Last ref. name
+        // Last ref. name
+        InArgs::REF_ADDRS.emplace_back(string(begIter,endIter));
         
         /*  Slower
         u8 refIndex = (u8) refFilesNames.size();
@@ -187,60 +188,60 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             }
         }
         // save last reference file name
-        mixModel.refAddr.push_back(refFilesNames.substr(0, refIndex));
+        InArgs::REF_ADDRS.push_back(refFilesNames.substr(0, refIndex));
         */
     }
     
     // Save model(s) parameters and process the model(s)
     if (m_flag)
     {
-        vector< string > vecModelsParams;    // Parameters for different models
-        string::iterator begIter = strModelsParameters.begin();
-        string::iterator endIter = strModelsParameters.end();
+        vector<string> vecModelsParams;    // Parameters for different models
+        auto begIter = strModelsParameters.begin();
+        auto endIter = strModelsParameters.end();
         // All models parameters but the last one
-        for (string::iterator it = begIter; it != endIter; ++it)
+        for (auto it=begIter; it!=endIter; ++it)
         {
             if (*it == ':')
             {
-                vecModelsParams.emplace_back( string(begIter, it) );
+                vecModelsParams.emplace_back(string(begIter,it));
                 begIter = it + 1;
             }
         }
         // Last model parameters
-        vecModelsParams.emplace_back( string(begIter, endIter) );
+        vecModelsParams.emplace_back(string(begIter,endIter));
                                                                
-        vector< string > modelParams;               // Params for each model
-        auto n_models = (u8) vecModelsParams.size();  // Number of models
+        vector<string> modelParams;               // Params for each model
+        auto n_models    = (u8) vecModelsParams.size();  // Number of models
         InArgs::N_MODELS = n_models;             // Set number of models
         
-        for (u8 n = n_models; n--;)
+        for (u8 n=n_models; n--;)
         {
-            modelParams.clear();                    // Reset vector modelParams
+            modelParams.clear();                  // Reset vector modelParams
             
-            begIter = vecModelsParams[ n ].begin();
-            endIter = vecModelsParams[ n ].end();
+            begIter = vecModelsParams[n].begin();
+            endIter = vecModelsParams[n].end();
             // All paramaeters for each model but the last one
-            for (string::iterator it = begIter; it != endIter; ++it)
+            for (auto it=begIter; it!=endIter; ++it)
             {
                 if (*it == ',')
                 {
-                    modelParams.emplace_back( string(begIter, it) );
+                    modelParams.emplace_back(string(begIter,it));
                     begIter = it + 1;
                 }
             }
             // Parameters for the last model
-            modelParams.emplace_back( string(begIter, endIter) );
+            modelParams.emplace_back(string(begIter,endIter));
                                                                
             // Set model(s) parameters
-            InArgs::INV_REPS.push_back((bool) stoi(modelParams[0]));
-            InArgs::CTX_DEPTHS.push_back((u8)    stoi(modelParams[1]));
-            mixModel.alphaDens.push_back((u16)   stoi(modelParams[2]));
+            InArgs::INV_REPS.push_back((bool)  stoi(modelParams[0]));
+            InArgs::CTX_DEPTHS.push_back((u8)  stoi(modelParams[1]));
+            InArgs::ALPHA_DENS.push_back((u16) stoi(modelParams[2]));
         }
         
         // Set compression mode: 't'=table, 'h'=hash table
         // 5^k_1 + 5^k_2 + ... > 5^12 ==> mode: hash table
         u64 cmpModeSum = 0;
-        for(u8 k : InArgs::CTX_DEPTHS) cmpModeSum = cmpModeSum + POWER5[k];
+        for(u8 k : InArgs::CTX_DEPTHS)    cmpModeSum += POWER5[k];
         const char compressionMode = (cmpModeSum > POWER5[TABLE_MAX_CTX])
                                      ? 'h' : 't';
         mixModel.compMode = compressionMode;
@@ -254,7 +255,7 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
     if (optind < argc)
     {
         cerr << "Error: non-option ARGV-element(s): ";
-        while (optind < argc)   cerr << argv[optind++] << " ";
+        while (optind<argc)   cerr << argv[optind++] << " ";
         cerr << '\n';
     }
 }
@@ -286,23 +287,23 @@ bool areFilesEqual (string const& first, string const& second)
     string firstLine, secondLine, firstStr, secondStr;
     
     // Remove '\n' from first and second files and save them in a string
-    while ( getline(firstFile, firstLine) )
+    while (getline(firstFile, firstLine))
     {
-        firstLine.erase( std::remove(firstLine.begin(), firstLine.end(), '\n'),
-                         firstLine.end() );
+        firstLine.erase(std::remove(firstLine.begin(),firstLine.end(), '\n'),
+                        firstLine.end());
         firstStr += firstLine;
     }
-    while ( getline(secondFile, secondLine) )
+    while (getline(secondFile, secondLine))
     {
-        secondLine.erase( std::remove(secondLine.begin(),secondLine.end(),'\n'),
-                          secondLine.end() );
+        secondLine.erase(std::remove(secondLine.begin(),secondLine.end(), '\n'),
+                         secondLine.end());
         secondStr += secondLine;
     }
     
     firstFile.close();  secondFile.close(); // Close files
     
     // If files are identical, return true, otherwise return false
-    return (firstStr == secondStr);
+    return (firstStr==secondStr);
 }
 
 
