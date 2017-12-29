@@ -12,15 +12,16 @@ using std::vector;
 using std::chrono::high_resolution_clock;
 
 
-class FCM
+class FCM : public InArgs
 {
 public:
-    high_resolution_clock::time_point startTime;    // Start time
-    u16            n_threads;          // # threads
-    u8             n_models;           // # models
-    bool           decompFlag;         // Decompress flag
-    char           compMode;           // Compression mode (table / hash table)
+    //todo. after defining a compress and decompress class, "gamma" should
+    //todo. be defined in decompress class and not compress class
     double         gamma;              // Gamma (for mixture of FCMs)
+    
+    
+    high_resolution_clock::time_point startTime;    // Start time
+    char           compMode;           // Compression mode (table / hash table)
     vector<bool>   invRepeats;         // Inverted repeat(s)
     vector<u8>     ctxDepths;          // Context depthe(s) (SIZE <= 255)
     vector<u16>    alphaDens;          // Alpha denominator(s)

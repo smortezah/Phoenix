@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "FCM.h"
-#include "ArithEncDec.h"
+#include "ArithCoder.h"
 
 using std::cout;
 using std::cerr;
@@ -34,19 +34,14 @@ using std::chrono::high_resolution_clock;
 /*******************************************************************************
     Constructor
 *******************************************************************************/
-FCM::FCM ()
-{
-    n_threads  = DEFAULT_N_THREADS;
-    gamma      = DEFAULT_GAMMA;
-    decompFlag = false;
-}
+FCM::FCM () {}
 
 
 /*******************************************************************************
     Initialization
 *******************************************************************************/
-void  FCM::initTables     () { tables     = new u64* [n_models];    }
-void  FCM::initHashTables () { hashTables = new htable_t[n_models]; }
+void  FCM::initTables     () { tables     = new u64* [N_MODELS];    }
+void  FCM::initHashTables () { hashTables = new htable_t[N_MODELS]; }
 
 
 /*******************************************************************************
@@ -277,11 +272,11 @@ void FCM::buildModel (vector<string> const& refsNames,
 *******************************************************************************/
 void FCM::compress (string const& tarName)
 {
-//    ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
+//    ArithCoder arithObj;   // To work with arithmetic encoder/decoder class
     
     // Alpha and ALPH_SIZE*alpha: used in P numerator and denominator
-    double alpha[n_models], sumAlphas[n_models];
-    for (u16 i = n_models; i--;)
+    double alpha[N_MODELS], sumAlphas[N_MODELS];
+    for (u16 i = N_MODELS; i--;)
     {
         alpha[ i ] = (double) 1 / alphaDens[ i ];
         sumAlphas[ i ] = ALPH_SIZE * alpha[ i ];
@@ -300,17 +295,17 @@ void FCM::compress (string const& tarName)
     }
     mut.unlock();//======================================================
     
-    u64 maxPlaceValue[n_models];
-    for (u16 i = n_models; i--;) maxPlaceValue[ i ] = POWER5[ ctxDepths[i] ];
+    u64 maxPlaceValue[N_MODELS];
+    for (u16 i = N_MODELS; i--;) maxPlaceValue[ i ] = POWER5[ ctxDepths[i] ];
     
     // Context(s) (integer) sliding through the dataset
-    u64    tarContext[n_models];   fill_n(tarContext, n_models, 0);
+    u64    tarContext[N_MODELS];   fill_n(tarContext, N_MODELS, 0);
     string tarLine;              // Keep each line of the file
     u64    nSym;                 // No. symbols (n_s). in probability numerator
     u64    sumNSym;      // Sum of no. symbols (sum n_a). in probability denom.
     double prob_i = 0.0;         // Probability of a symbol for each model
-//    double rawWeight[n_models];  // Weight before normalization. init: 1/M
-//    double weight[n_models]; fill_n(weight, n_models, (double) 1 / n_models);
+//    double rawWeight[N_MODELS];  // Weight before normalization. init: 1/M
+//    double weight[N_MODELS]; fill_n(weight, N_MODELS, (double) 1 / N_MODELS);
     double probability;          // Final probability of a symbol
     double sumOfEntropies = 0;   // Sum of entropies for different symbols
 //    u64    file_size = fileSize(tarName);// Size of file, including '\n'
@@ -353,9 +348,9 @@ void FCM::compress (string const& tarName)
 //    // Model(s) properties, being sent to decoder as header
 //    arithObj.WriteNBits(WATERMARK, 26,Writer); // WriteNBits just writes header
 //    arithObj.WriteNBits(symsNo,    46, Writer);   // Number of symbols, in byte
-//    arithObj.WriteNBits((u64) (gamma * 65536),  32, Writer);    // Gamma
-//    arithObj.WriteNBits(n_models,  16, Writer);   // Number of models
-//    for (u16 n = 0; n < n_models; ++n)
+//    arithObj.WriteNBits((u64) (GAMMA * 65536),  32, Writer);    // Gamma
+//    arithObj.WriteNBits(N_MODELS,  16, Writer);   // Number of models
+//    for (u16 n = 0; n < N_MODELS; ++n)
 //    {
 //        arithObj.WriteNBits((u8) invRepeats[n], 1,  Writer);    // IRs
 //        arithObj.WriteNBits(ctxDepths[n],       16, Writer);    // Ctx depths
@@ -384,7 +379,7 @@ void FCM::compress (string const& tarName)
                     probability = 0;
 //                    sumOfWeights = 0;
 
-                    for (u16 i = n_models; i--;)
+                    for (u16 i = N_MODELS; i--;)
                     {
                         rowIndex = tarContext[ i ] * ALPH_SUM_SIZE;
 
@@ -406,7 +401,7 @@ void FCM::compress (string const& tarName)
 //                        // Weight before normalization
 //                        //todo: fastPow(1,0.95) != 1.
 //                        //todo. halate n_models=1 bas joda she
-//                        rawWeight[ i ] = fastPow(weight[ i ], gamma) * prob_i;
+//                        rawWeight[ i ] = fastPow(weight[ i ], GAMMA) * prob_i;
 //                        // Sum of weights. used for normalization
 //                        sumOfWeights = sumOfWeights + rawWeight[ i ];
 
@@ -417,7 +412,7 @@ void FCM::compress (string const& tarName)
                                           % maxPlaceValue[ i ];
                     }
 //                    // Update weights
-//                    for (u8 i = n_models; i--;)
+//                    for (u8 i = N_MODELS; i--;)
 //                        weight[ i ] = rawWeight[ i ] / sumOfWeights;
 
                     // sum( log_2 P(s|c^t) )
@@ -465,7 +460,7 @@ void FCM::compress (string const& tarName)
                     probability = 0;
 //                    sumOfWeights = 0;
                     
-                    for (u16 i = n_models; i--;)
+                    for (u16 i = N_MODELS; i--;)
                     {
                         //todo. in lock va3 case table ham check she, age niaz
                         //todo. bood, bezar
@@ -491,7 +486,7 @@ void FCM::compress (string const& tarName)
 //                        probability += weight[ i ] * prob_i;
 //
 //                        // Weight before normalization
-//                        rawWeight[ i ] = fastPow(weight[ i ], gamma) * prob_i;
+//                        rawWeight[ i ] = fastPow(weight[ i ], GAMMA) * prob_i;
 //                        // Sum of weights. used for normalization
 //                        sumOfWeights = sumOfWeights + rawWeight[ i ];
 
@@ -505,7 +500,7 @@ void FCM::compress (string const& tarName)
                     }
 
 //                    // Update weights
-//                    for (u8 i = n_models; i--;)
+//                    for (u8 i = N_MODELS; i--;)
 //                        weight[ i ] = rawWeight[ i ] / sumOfWeights;
 
                     // sum( log_2 P(s|c^t) )
@@ -576,7 +571,7 @@ void FCM::compress (string const& tarName)
 *******************************************************************************/
 void FCM::extractHeader (string const& tarName)
 {
-    ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
+    ArithCoder arithObj;   // To work with arithmetic encoder/decoder class
     
     // Build TAR.co filename
     size_t lastSlash_Tar = tarName.find_last_of("/");       // Position
@@ -599,7 +594,7 @@ void FCM::extractHeader (string const& tarName)
             round((double) arithObj.ReadNBits(32, Reader)/65536 * 100) / 100;
 
     auto no_models = (u64) arithObj.ReadNBits(16, Reader);  // Number of models
-    this->n_models = (u8) no_models;
+    InArgs::N_MODELS = (u8) no_models;
     for (u8 n = 0; n < no_models; ++n)
     {
         this->invRepeats.push_back((bool) arithObj.ReadNBits(1,  Reader));
@@ -623,7 +618,7 @@ void FCM::extractHeader (string const& tarName)
 *******************************************************************************/
 void FCM::decompress (string const& tarName)
 {
-    ArithEncDec arithObj;   // To work with arithmetic encoder/decoder class
+    ArithCoder arithObj;   // To work with arithmetic encoder/decoder class
     
     // Build TAR.co and TAR.de filenames
     size_t lastSlash_Tar = tarName.find_last_of("/");     // Position
@@ -650,7 +645,7 @@ void FCM::decompress (string const& tarName)
     auto symsNo = (u64) arithObj.ReadNBits(46, Reader);  // Number of symbols
     arithObj.ReadNBits(32, Reader);     // Gamma
     arithObj.ReadNBits(16, Reader);                     // Number of models
-    u8 no_models = this->n_models;
+    u8 no_models = N_MODELS;
     for (u8 n = 0; n < no_models; ++n)
     {
         arithObj.ReadNBits(1,  Reader);                 // Inverted repeats

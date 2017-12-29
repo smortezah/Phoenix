@@ -207,10 +207,10 @@ static unsigned long out_bits_outstanding;	// Follow bit count
 /////---------------------------------------------------------------------------
 
 
-class ArithEncDec
+class ArithCoder : public InArgs
 {
 public:
-    ArithEncDec ();                                      // Constructor
+    ArithCoder () = default;                                      // Constructor
 
     void GetInterval         (int*, int*, int*, u8);
     u8   GetSymbol           (int*, int*, int*, int, u8);
@@ -242,16 +242,11 @@ private:
     inline void DECODE_RENORMALISE   (FILE*);
 };
 
-/*******************************************************************************
-    Constructor
-*******************************************************************************/
-ArithEncDec::ArithEncDec () {}
-
 
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::GetInterval (int *low, int *high, int *count, u8 symbol)
+void ArithCoder::GetInterval (int *low, int *high, int *count, u8 symbol)
 {
 	*low = 0;	for (u8 n = 0; n < symbol; n++) *low += count[ n ];
 	*high = *low + count[ symbol ];
@@ -261,7 +256,7 @@ void ArithEncDec::GetInterval (int *low, int *high, int *count, u8 symbol)
 /*******************************************************************************
 
 *******************************************************************************/
-u8 ArithEncDec::GetSymbol (int *low, int *high, int *count,
+u8 ArithCoder::GetSymbol (int *low, int *high, int *count,
 						   int target, u8 nSymbols)
 {
 	u8 n;
@@ -281,7 +276,7 @@ u8 ArithEncDec::GetSymbol (int *low, int *high, int *count,
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::WriteNBits (u64 bits, int nBits, FILE *oFp)
+void ArithCoder::WriteNBits (u64 bits, int nBits, FILE *oFp)
 {
 	while (nBits--)
 	{
@@ -294,7 +289,7 @@ void ArithEncDec::WriteNBits (u64 bits, int nBits, FILE *oFp)
 /*******************************************************************************
 
 *******************************************************************************/
-int ArithEncDec::ReadNBits (u32 nBits, FILE *iFp)
+int ArithCoder::ReadNBits (u32 nBits, FILE *iFp)
 {
 	int bits = 0;
 	int target, low, high, count[2] = {1, 1};
@@ -314,7 +309,7 @@ int ArithEncDec::ReadNBits (u32 nBits, FILE *iFp)
 /*******************************************************************************
 
 *******************************************************************************/
-void ArithEncDec::AESym (u8 symbol, int *counters, int totalCount, FILE *oFp)
+void ArithCoder::AESym (u8 symbol, int *counters, int totalCount, FILE *oFp)
 {
 	int low, high;
 
@@ -326,7 +321,7 @@ void ArithEncDec::AESym (u8 symbol, int *counters, int totalCount, FILE *oFp)
 /*******************************************************************************
 
 *******************************************************************************/
-u8 ArithEncDec::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
+u8 ArithCoder::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
 {
 	int low, high;
 
@@ -341,7 +336,7 @@ u8 ArithEncDec::ADSym (u8 nSymbols, int *counters, int totalCount, FILE *iFp)
 /*******************************************************************************
     Encode a symbol given its low, high and total frequencies
 *******************************************************************************/
-void ArithEncDec::arithmetic_encode (freq_value low, freq_value high,
+void ArithCoder::arithmetic_encode (freq_value low, freq_value high,
 									 freq_value total, FILE *s)
 {
 	/*
@@ -431,7 +426,7 @@ void ArithEncDec::arithmetic_encode (freq_value low, freq_value high,
     if (target < total) return target;
     else                return total-1;
 *******************************************************************************/
-freq_value ArithEncDec::arithmetic_decode_target (freq_value total)
+freq_value ArithCoder::arithmetic_decode_target (freq_value total)
 {
 	freq_value target;
 
@@ -456,7 +451,7 @@ freq_value ArithEncDec::arithmetic_decode_target (freq_value total)
  
     DECODE_RENORMALISE;      // Expand code range and input bits
 *******************************************************************************/
-void ArithEncDec::arithmetic_decode (freq_value low, freq_value high,
+void ArithCoder::arithmetic_decode (freq_value low, freq_value high,
 									 freq_value total, FILE *s)
 {
 	code_value temp;
@@ -474,7 +469,7 @@ void ArithEncDec::arithmetic_decode (freq_value low, freq_value high,
 /*******************************************************************************
     Start the encoder
 *******************************************************************************/
-void ArithEncDec::start_encode ()
+void ArithCoder::start_encode ()
 {
 	/// Set initial coding range to [0,Half)
 	out_L = 0;
@@ -489,7 +484,7 @@ void ArithEncDec::start_encode ()
     decoder can read them harmlessly as it reads beyond end of what would have
     been valid input.
 *******************************************************************************/
-void ArithEncDec::finish_encode (FILE *s)
+void ArithCoder::finish_encode (FILE *s)
 {
 	int nbits;
 	code_value bits;
@@ -515,7 +510,7 @@ void ArithEncDec::finish_encode (FILE *s)
     buffer, on second and subsequent calls retrieve_excess_input_bits() is used
     and the last bit must be placed back into the input stream.
 *******************************************************************************/
-void ArithEncDec::start_decode (FILE *s)
+void ArithCoder::start_decode (FILE *s)
 {
     in_D = 0;		/// Initial offset in range is 0
 	in_R = Half;	/// Range = Half
@@ -531,7 +526,7 @@ void ArithEncDec::start_decode (FILE *s)
     consume.) (They were mangled anyway as we only kept V-L, and cannot get back
     to V)
 *******************************************************************************/
-void ArithEncDec::finish_decode ()
+void ArithCoder::finish_decode ()
 {
 	/// No action
 }
@@ -540,7 +535,7 @@ void ArithEncDec::finish_decode ()
 /*******************************************************************************
     Initialize the bit output function
 *******************************************************************************/
-void ArithEncDec::startoutputtingbits ()
+void ArithCoder::startoutputtingbits ()
 {
 	_out_buffer = 0;
 	_out_bits_to_go = BYTE_SIZE;
@@ -550,7 +545,7 @@ void ArithEncDec::startoutputtingbits ()
 /*******************************************************************************
     Start the bit input function
 *******************************************************************************/
-void ArithEncDec::startinputtingbits ()
+void ArithCoder::startinputtingbits ()
 {
 	_in_garbage = 0;	/// Number of bytes read past end of file
 	_in_bit_ptr = 0;	/// No valid bits yet in input buffer
@@ -560,7 +555,7 @@ void ArithEncDec::startinputtingbits ()
 /*******************************************************************************
     Complete outputting bits
 *******************************************************************************/
-void ArithEncDec::doneoutputtingbits (FILE *s)
+void ArithCoder::doneoutputtingbits (FILE *s)
 {
 	if (_out_bits_to_go != BYTE_SIZE)
         OUTPUT_BYTE(_out_buffer << _out_bits_to_go, s);
@@ -571,7 +566,7 @@ void ArithEncDec::doneoutputtingbits (FILE *s)
 /*******************************************************************************
     Complete inputting bits
 *******************************************************************************/
-void ArithEncDec::doneinputtingbits ()
+void ArithCoder::doneinputtingbits ()
 {
 	_in_bit_ptr = 0;	/// "Wipe" buffer (in case more input follows)
 }
@@ -580,7 +575,7 @@ void ArithEncDec::doneinputtingbits ()
 /*******************************************************************************
     Outputs bit 'b' to stdout. Builds up a buffer, writing a byte at a time.
 *******************************************************************************/
-inline void ArithEncDec::OUTPUT_BIT (int b, FILE *s)
+inline void ArithCoder::OUTPUT_BIT (int b, FILE *s)
 {
     do
     {
@@ -612,7 +607,7 @@ inline void ArithEncDec::OUTPUT_BIT (int b, FILE *s)
     point to the next bit that is to be read. When it is zero, the next byte
     is read, and it is reset to point to the msb.
 *******************************************************************************/
-inline void ArithEncDec::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
+inline void ArithCoder::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
                                              FILE *s)
 {
     do
@@ -645,7 +640,7 @@ inline void ArithEncDec::ADD_NEXT_INPUT_BIT (code_value &v, int garbage_bits,
     Responsible for outputting the bit passed to it and an opposite number of
     bit equal to the value stored in bits_outstanding
 *******************************************************************************/
-inline void ArithEncDec::ORIG_BIT_PLUS_FOLLOW (int b, FILE *s)
+inline void ArithCoder::ORIG_BIT_PLUS_FOLLOW (int b, FILE *s)
 {
     do
     {
@@ -658,7 +653,7 @@ inline void ArithEncDec::ORIG_BIT_PLUS_FOLLOW (int b, FILE *s)
     } while (0);
 }
 //============================================================
-inline void ArithEncDec::BIT_PLUS_FOLLOW (int b, FILE *s)
+inline void ArithCoder::BIT_PLUS_FOLLOW (int b, FILE *s)
 {
     ORIG_BIT_PLUS_FOLLOW(b, s);
 }
@@ -669,7 +664,7 @@ inline void ArithEncDec::BIT_PLUS_FOLLOW (int b, FILE *s)
     FRUGAL_BITS option, ignore first zero bit output (a redundant zero will
     otherwise be emitted every time the encoder is started)
 *******************************************************************************/
-inline void ArithEncDec::ENCODE_RENORMALISE (FILE *s)
+inline void ArithCoder::ENCODE_RENORMALISE (FILE *s)
 {
     do
     {
@@ -701,7 +696,7 @@ inline void ArithEncDec::ENCODE_RENORMALISE (FILE *s)
     encoder. FRUGAL_BITS option also keeps track of bitstream input so it can
     work out exactly how many disambiguating bits the encoder put out (1,2,3).
 *******************************************************************************/
-inline void ArithEncDec::DECODE_RENORMALISE (FILE *s)
+inline void ArithCoder::DECODE_RENORMALISE (FILE *s)
 {
     do
     {

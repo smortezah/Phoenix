@@ -79,7 +79,7 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             
             case 'h': h_flag = 1;   help();                               break;
             case 'v': v_flag = 1;                                         break;
-            case 'd': d_flag = 1;   mixModel.decompFlag = true;           break;
+            case 'd': d_flag = 1;   InArgs::DECOMP_FLAG = true;           break;
             case 'm': m_flag=true;  strModelsParameters=(string) optarg;  break;
             case 'r': r_flag=true;  refFilesNames      =(string) optarg;  break;
             case 't': t_flag=true;  tarFilesNames      =(string) optarg;  break;
@@ -87,8 +87,8 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
             case 'n':   // Needs an integer argument
                 try
                 {
-                    u8 nThr = (u8) stoi((string) optarg);
-                    mixModel.n_threads = (nThr<1 ? DEFAULT_N_THREADS : nThr);
+                    auto nThr = (u8) stoi((string) optarg);
+                    InArgs::N_THREADS = (nThr<1 ? DEFAULT_N_THR : nThr);
                 }
                 catch (invalid_argument const& ia)
                 {
@@ -102,7 +102,7 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
                 try
                 {
                     double gamma = stod((string) optarg);
-                    mixModel.gamma =
+                    InArgs::GAMMA =
                             (gamma>=0 && gamma<1) ? gamma : DEFAULT_GAMMA;
                 }
                 catch (invalid_argument const& ia)
@@ -211,8 +211,8 @@ void commandLineParser (int argc, char **argv, FCM& mixModel)
                                                                
         vector< string > modelParams;               // Params for each model
         auto n_models = (u8) vecModelsParams.size();  // Number of models
-        mixModel.n_models = n_models;             // Set number of models
-                                                 cout<<mixModel.n_models;
+        InArgs::N_MODELS = n_models;             // Set number of models
+        
         for (u8 n = n_models; n--;)
         {
             modelParams.clear();                    // Reset vector modelParams
